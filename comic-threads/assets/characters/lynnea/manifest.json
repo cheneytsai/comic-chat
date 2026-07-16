@@ -1,0 +1,393 @@
+{
+  "name": "lynnea",
+  "source": "v1.0-pre-modern/comicart/avatars/lynnea.avb",
+  "type": "complex",
+  "iconImage": "icon.png",
+  "faces": [
+    {
+      "image": "face-00.png",
+      "w": 136,
+      "h": 153,
+      "emotion": "happy",
+      "intensity": 1,
+      "xCX": 69,
+      "yCX": 126,
+      "dxCX": 3,
+      "dyCX": 0,
+      "faceX": 76,
+      "faceY": 94
+    },
+    {
+      "image": "face-01.png",
+      "w": 136,
+      "h": 153,
+      "emotion": "coy",
+      "intensity": 1,
+      "xCX": 62,
+      "yCX": 125,
+      "dxCX": 1,
+      "dyCX": 0,
+      "faceX": 73,
+      "faceY": 96
+    },
+    {
+      "image": "face-02.png",
+      "w": 142,
+      "h": 155,
+      "emotion": "laugh",
+      "intensity": 1,
+      "xCX": 76,
+      "yCX": 115,
+      "dxCX": -1,
+      "dyCX": -5,
+      "faceX": 86,
+      "faceY": 89
+    },
+    {
+      "image": "face-03.png",
+      "w": 137,
+      "h": 158,
+      "emotion": "happy",
+      "intensity": 0.6,
+      "xCX": 69,
+      "yCX": 127,
+      "dxCX": 3,
+      "dyCX": -1,
+      "faceX": 75,
+      "faceY": 97
+    },
+    {
+      "image": "face-03.png",
+      "w": 137,
+      "h": 158,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 69,
+      "yCX": 127,
+      "dxCX": 3,
+      "dyCX": -1,
+      "faceX": 75,
+      "faceY": 97
+    },
+    {
+      "image": "face-04.png",
+      "w": 137,
+      "h": 159,
+      "emotion": "sad",
+      "intensity": 0.498,
+      "xCX": 69,
+      "yCX": 127,
+      "dxCX": 4,
+      "dyCX": -2,
+      "faceX": 73,
+      "faceY": 94
+    },
+    {
+      "image": "face-05.png",
+      "w": 131,
+      "h": 149,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 67,
+      "yCX": 121,
+      "dxCX": 3,
+      "dyCX": -3,
+      "faceX": 74,
+      "faceY": 94
+    },
+    {
+      "image": "face-05.png",
+      "w": 131,
+      "h": 149,
+      "emotion": "happy",
+      "intensity": 0.4,
+      "xCX": 67,
+      "yCX": 121,
+      "dxCX": 3,
+      "dyCX": -3,
+      "faceX": 74,
+      "faceY": 94
+    },
+    {
+      "image": "face-06.png",
+      "w": 138,
+      "h": 158,
+      "emotion": "sad",
+      "intensity": 0.8,
+      "xCX": 69,
+      "yCX": 128,
+      "dxCX": 2,
+      "dyCX": -1,
+      "faceX": 76,
+      "faceY": 96
+    },
+    {
+      "image": "face-07.png",
+      "w": 138,
+      "h": 156,
+      "emotion": "happy",
+      "intensity": 0.2,
+      "xCX": 68,
+      "yCX": 126,
+      "dxCX": 2,
+      "dyCX": -1,
+      "faceX": 76,
+      "faceY": 94
+    },
+    {
+      "image": "face-07.png",
+      "w": 138,
+      "h": 156,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 68,
+      "yCX": 126,
+      "dxCX": 2,
+      "dyCX": -1,
+      "faceX": 76,
+      "faceY": 94
+    },
+    {
+      "image": "face-08.png",
+      "w": 136,
+      "h": 155,
+      "emotion": "bored",
+      "intensity": 1,
+      "xCX": 69,
+      "yCX": 124,
+      "dxCX": 3,
+      "dyCX": -1,
+      "faceX": 76,
+      "faceY": 96
+    },
+    {
+      "image": "face-09.png",
+      "w": 136,
+      "h": 168,
+      "emotion": "shout",
+      "intensity": 1,
+      "xCX": 62,
+      "yCX": 139,
+      "dxCX": 2,
+      "dyCX": 3,
+      "faceX": 75,
+      "faceY": 102
+    },
+    {
+      "image": "face-10.png",
+      "w": 142,
+      "h": 159,
+      "emotion": "angry",
+      "intensity": 1,
+      "xCX": 68,
+      "yCX": 130,
+      "dxCX": 1,
+      "dyCX": -2,
+      "faceX": 75,
+      "faceY": 100
+    },
+    {
+      "image": "face-11.png",
+      "w": 146,
+      "h": 159,
+      "emotion": "scared",
+      "intensity": 1,
+      "xCX": 74,
+      "yCX": 129,
+      "dxCX": -3,
+      "dyCX": -3,
+      "faceX": 84,
+      "faceY": 98
+    },
+    {
+      "image": "face-12.png",
+      "w": 138,
+      "h": 166,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 66,
+      "yCX": 139,
+      "dxCX": 1,
+      "dyCX": 4,
+      "faceX": 69,
+      "faceY": 103
+    },
+    {
+      "image": "face-13.png",
+      "w": 139,
+      "h": 160,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 66,
+      "yCX": 134,
+      "dxCX": 1,
+      "dyCX": 4,
+      "faceX": 67,
+      "faceY": 99
+    }
+  ],
+  "torsos": [
+    {
+      "image": "torso-00.png",
+      "w": 191,
+      "h": 380,
+      "emotion": "coy",
+      "intensity": 1,
+      "xCX": 101,
+      "yCX": 27
+    },
+    {
+      "image": "torso-01.png",
+      "w": 221,
+      "h": 441,
+      "emotion": "coy",
+      "intensity": 0.6,
+      "xCX": 97,
+      "yCX": 97
+    },
+    {
+      "image": "torso-02.png",
+      "w": 260,
+      "h": 397,
+      "emotion": "laugh",
+      "intensity": 1,
+      "xCX": 135,
+      "yCX": 42
+    },
+    {
+      "image": "torso-02.png",
+      "w": 260,
+      "h": 397,
+      "emotion": "shout",
+      "intensity": 1,
+      "xCX": 135,
+      "yCX": 42
+    },
+    {
+      "image": "torso-03.png",
+      "w": 208,
+      "h": 383,
+      "emotion": "pointself",
+      "intensity": 1,
+      "xCX": 105,
+      "yCX": 37
+    },
+    {
+      "image": "torso-04.png",
+      "w": 199,
+      "h": 386,
+      "emotion": "sad",
+      "intensity": 1,
+      "xCX": 93,
+      "yCX": 29
+    },
+    {
+      "image": "torso-04.png",
+      "w": 199,
+      "h": 386,
+      "emotion": "bored",
+      "intensity": 0.498,
+      "xCX": 93,
+      "yCX": 29
+    },
+    {
+      "image": "torso-04.png",
+      "w": 199,
+      "h": 386,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 93,
+      "yCX": 29
+    },
+    {
+      "image": "torso-05.png",
+      "w": 199,
+      "h": 376,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 103,
+      "yCX": 26
+    },
+    {
+      "image": "torso-05.png",
+      "w": 199,
+      "h": 376,
+      "emotion": "angry",
+      "intensity": 0.498,
+      "xCX": 103,
+      "yCX": 26
+    },
+    {
+      "image": "torso-06.png",
+      "w": 193,
+      "h": 363,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 88,
+      "yCX": 31
+    },
+    {
+      "image": "torso-07.png",
+      "w": 200,
+      "h": 384,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 94,
+      "yCX": 29
+    },
+    {
+      "image": "torso-07.png",
+      "w": 200,
+      "h": 384,
+      "emotion": "angry",
+      "intensity": 0.698,
+      "xCX": 94,
+      "yCX": 29
+    },
+    {
+      "image": "torso-08.png",
+      "w": 278,
+      "h": 391,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 137,
+      "yCX": 32
+    },
+    {
+      "image": "torso-08.png",
+      "w": 278,
+      "h": 391,
+      "emotion": "bored",
+      "intensity": 1,
+      "xCX": 137,
+      "yCX": 32
+    },
+    {
+      "image": "torso-09.png",
+      "w": 236,
+      "h": 379,
+      "emotion": "angry",
+      "intensity": 1,
+      "xCX": 136,
+      "yCX": 36
+    },
+    {
+      "image": "torso-10.png",
+      "w": 229,
+      "h": 380,
+      "emotion": "pointother",
+      "intensity": 1,
+      "xCX": 105,
+      "yCX": 33
+    },
+    {
+      "image": "torso-11.png",
+      "w": 226,
+      "h": 402,
+      "emotion": "wave",
+      "intensity": 1,
+      "xCX": 108,
+      "yCX": 49
+    }
+  ]
+}

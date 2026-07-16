@@ -1,0 +1,14 @@
+{
+  "name": "@comic-threads/avb-extract",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Zero-dependency Node CLI that extracts Microsoft Comic Chat .avb character files to pose PNGs + manifest.json (DESIGN.md §4.3).",
+  "bin": {
+    "avb-extract": "./extract.mjs"
+  },
+  "scripts": {
+    "extract": "node extract.mjs"
+  },
+  "license": "MIT"
+}

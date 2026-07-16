@@ -1,0 +1,134 @@
+{
+  "name": "jordan",
+  "source": "v1.0-pre-modern/comicart/avatars/jordan.avb",
+  "type": "simple",
+  "iconImage": "icon.png",
+  "bodies": [
+    {
+      "image": "body-00.png",
+      "w": 278,
+      "h": 429,
+      "emotion": "pointother",
+      "intensity": 0,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-01.png",
+      "w": 232,
+      "h": 424,
+      "emotion": "pointself",
+      "intensity": 0,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-01.png",
+      "w": 232,
+      "h": 424,
+      "emotion": "coy",
+      "intensity": 0.8,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-02.png",
+      "w": 261,
+      "h": 434,
+      "emotion": "angry",
+      "intensity": 1,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-03.png",
+      "w": 291,
+      "h": 446,
+      "emotion": "bored",
+      "intensity": 0.8,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-04.png",
+      "w": 194,
+      "h": 471,
+      "emotion": "laugh",
+      "intensity": 1,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-05.png",
+      "w": 231,
+      "h": 443,
+      "emotion": "wave",
+      "intensity": 0,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-06.png",
+      "w": 223,
+      "h": 420,
+      "emotion": "neutral",
+      "intensity": 0,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-06.png",
+      "w": 223,
+      "h": 420,
+      "emotion": "happy",
+      "intensity": 0.4,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-07.png",
+      "w": 214,
+      "h": 441,
+      "emotion": "neutral",
+      "intensity": 0,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-07.png",
+      "w": 214,
+      "h": 441,
+      "emotion": "scared",
+      "intensity": 0.2,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-08.png",
+      "w": 286,
+      "h": 439,
+      "emotion": "neutral",
+      "intensity": 0,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-09.png",
+      "w": 288,
+      "h": 445,
+      "emotion": "shout",
+      "intensity": 1,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-09.png",
+      "w": 288,
+      "h": 445,
+      "emotion": "sad",
+      "intensity": 1,
+      "faceX": 133,
+      "faceY": 131
+    }
+  ]
+}

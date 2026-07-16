@@ -1,0 +1,17 @@
+{
+  "name": "glenda",
+  "source": "v1.0-pre-modern/comicart/avatars/glenda.avb",
+  "type": "simple",
+  "iconImage": "icon.png",
+  "bodies": [
+    {
+      "image": "body-00.png",
+      "w": 224,
+      "h": 387,
+      "emotion": "neutral",
+      "intensity": 0,
+      "faceX": 152,
+      "faceY": 70
+    }
+  ]
+}

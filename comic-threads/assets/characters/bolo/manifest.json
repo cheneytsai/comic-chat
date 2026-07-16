@@ -1,0 +1,265 @@
+{
+  "name": "bolo",
+  "source": "v1.0-pre-modern/comicart/avatars/bolo.avb",
+  "type": "complex",
+  "iconImage": "icon.png",
+  "faces": [
+    {
+      "image": "face-00.png",
+      "w": 192,
+      "h": 156,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 97,
+      "yCX": 128,
+      "dxCX": 2,
+      "dyCX": -5,
+      "faceX": 105,
+      "faceY": 97
+    },
+    {
+      "image": "face-00.png",
+      "w": 192,
+      "h": 156,
+      "emotion": "happy",
+      "intensity": 0.2,
+      "xCX": 97,
+      "yCX": 128,
+      "dxCX": 2,
+      "dyCX": -5,
+      "faceX": 105,
+      "faceY": 97
+    },
+    {
+      "image": "face-00.png",
+      "w": 192,
+      "h": 156,
+      "emotion": "bored",
+      "intensity": 0.298,
+      "xCX": 97,
+      "yCX": 128,
+      "dxCX": 2,
+      "dyCX": -5,
+      "faceX": 105,
+      "faceY": 97
+    },
+    {
+      "image": "face-01.png",
+      "w": 189,
+      "h": 159,
+      "emotion": "happy",
+      "intensity": 0.6,
+      "xCX": 95,
+      "yCX": 131,
+      "dxCX": 3,
+      "dyCX": -5,
+      "faceX": 100,
+      "faceY": 100
+    },
+    {
+      "image": "face-01.png",
+      "w": 189,
+      "h": 159,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 95,
+      "yCX": 131,
+      "dxCX": 3,
+      "dyCX": -5,
+      "faceX": 100,
+      "faceY": 100
+    },
+    {
+      "image": "face-02.png",
+      "w": 182,
+      "h": 169,
+      "emotion": "happy",
+      "intensity": 1,
+      "xCX": 86,
+      "yCX": 135,
+      "dxCX": 0,
+      "dyCX": -3,
+      "faceX": 99,
+      "faceY": 102
+    },
+    {
+      "image": "face-03.png",
+      "w": 199,
+      "h": 161,
+      "emotion": "coy",
+      "intensity": 1,
+      "xCX": 93,
+      "yCX": 126,
+      "dxCX": 0,
+      "dyCX": -6,
+      "faceX": 107,
+      "faceY": 100
+    },
+    {
+      "image": "face-04.png",
+      "w": 191,
+      "h": 153,
+      "emotion": "sad",
+      "intensity": 1,
+      "xCX": 97,
+      "yCX": 123,
+      "dxCX": 6,
+      "dyCX": -3,
+      "faceX": 107,
+      "faceY": 93
+    },
+    {
+      "image": "face-05.png",
+      "w": 196,
+      "h": 158,
+      "emotion": "angry",
+      "intensity": 1,
+      "xCX": 95,
+      "yCX": 129,
+      "dxCX": -1,
+      "dyCX": -5,
+      "faceX": 105,
+      "faceY": 99
+    },
+    {
+      "image": "face-06.png",
+      "w": 196,
+      "h": 161,
+      "emotion": "shout",
+      "intensity": 1,
+      "xCX": 95,
+      "yCX": 131,
+      "dxCX": 3,
+      "dyCX": 0,
+      "faceX": 101,
+      "faceY": 92
+    },
+    {
+      "image": "face-07.png",
+      "w": 193,
+      "h": 158,
+      "emotion": "scared",
+      "intensity": 1,
+      "xCX": 97,
+      "yCX": 128,
+      "dxCX": 1,
+      "dyCX": -3,
+      "faceX": 106,
+      "faceY": 95
+    },
+    {
+      "image": "face-08.png",
+      "w": 188,
+      "h": 160,
+      "emotion": "laugh",
+      "intensity": 1,
+      "xCX": 93,
+      "yCX": 131,
+      "dxCX": 1,
+      "dyCX": -4,
+      "faceX": 103,
+      "faceY": 98
+    }
+  ],
+  "torsos": [
+    {
+      "image": "torso-00.png",
+      "w": 211,
+      "h": 363,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 107,
+      "yCX": 27
+    },
+    {
+      "image": "torso-01.png",
+      "w": 189,
+      "h": 373,
+      "emotion": "pointother",
+      "intensity": 1,
+      "xCX": 89,
+      "yCX": 36
+    },
+    {
+      "image": "torso-02.png",
+      "w": 239,
+      "h": 371,
+      "emotion": "pointself",
+      "intensity": 1,
+      "xCX": 120,
+      "yCX": 35
+    },
+    {
+      "image": "torso-03.png",
+      "w": 188,
+      "h": 366,
+      "emotion": "coy",
+      "intensity": 1,
+      "xCX": 94,
+      "yCX": 32
+    },
+    {
+      "image": "torso-03.png",
+      "w": 188,
+      "h": 366,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 94,
+      "yCX": 32
+    },
+    {
+      "image": "torso-04.png",
+      "w": 189,
+      "h": 366,
+      "emotion": "sad",
+      "intensity": 1,
+      "xCX": 111,
+      "yCX": 30
+    },
+    {
+      "image": "torso-05.png",
+      "w": 220,
+      "h": 351,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 113,
+      "yCX": 28
+    },
+    {
+      "image": "torso-05.png",
+      "w": 220,
+      "h": 351,
+      "emotion": "angry",
+      "intensity": 0.2,
+      "xCX": 113,
+      "yCX": 28
+    },
+    {
+      "image": "torso-06.png",
+      "w": 222,
+      "h": 361,
+      "emotion": "angry",
+      "intensity": 1,
+      "xCX": 108,
+      "yCX": 30
+    },
+    {
+      "image": "torso-07.png",
+      "w": 331,
+      "h": 379,
+      "emotion": "bored",
+      "intensity": 1,
+      "xCX": 167,
+      "yCX": 33
+    },
+    {
+      "image": "torso-08.png",
+      "w": 215,
+      "h": 395,
+      "emotion": "wave",
+      "intensity": 1,
+      "xCX": 95,
+      "yCX": 58
+    }
+  ]
+}

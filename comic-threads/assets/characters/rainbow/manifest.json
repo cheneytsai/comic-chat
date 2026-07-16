@@ -1,0 +1,17 @@
+{
+  "name": "rainbow",
+  "source": "v1.0-pre-modern/comicart/avatars/rainbow.avb",
+  "type": "simple",
+  "iconImage": "icon.png",
+  "bodies": [
+    {
+      "image": "body-00.png",
+      "w": 240,
+      "h": 346,
+      "emotion": "neutral",
+      "intensity": 0,
+      "faceX": 153,
+      "faceY": 149
+    }
+  ]
+}

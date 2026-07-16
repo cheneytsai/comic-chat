@@ -1,0 +1,212 @@
+{
+  "name": "mike",
+  "source": "v1.0-pre-modern/comicart/avatars/mike.avb",
+  "type": "complex",
+  "iconImage": "icon.png",
+  "faces": [
+    {
+      "image": "face-00.png",
+      "w": 198,
+      "h": 165,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 108,
+      "yCX": 149,
+      "dxCX": 0,
+      "dyCX": -5,
+      "faceX": 101,
+      "faceY": 94
+    },
+    {
+      "image": "face-01.png",
+      "w": 160,
+      "h": 202,
+      "emotion": "coy",
+      "intensity": 0.6,
+      "xCX": 100,
+      "yCX": 164,
+      "dxCX": 2,
+      "dyCX": -13,
+      "faceX": 94,
+      "faceY": 125
+    },
+    {
+      "image": "face-02.png",
+      "w": 201,
+      "h": 166,
+      "emotion": "happy",
+      "intensity": 0.8,
+      "xCX": 108,
+      "yCX": 153,
+      "dxCX": -3,
+      "dyCX": 2,
+      "faceX": 102,
+      "faceY": 99
+    },
+    {
+      "image": "face-03.png",
+      "w": 190,
+      "h": 165,
+      "emotion": "angry",
+      "intensity": 0.4,
+      "xCX": 94,
+      "yCX": 151,
+      "dxCX": -3,
+      "dyCX": 4,
+      "faceX": 90,
+      "faceY": 98
+    },
+    {
+      "image": "face-04.png",
+      "w": 210,
+      "h": 163,
+      "emotion": "laugh",
+      "intensity": 0.8,
+      "xCX": 128,
+      "yCX": 148,
+      "dxCX": -4,
+      "dyCX": 3,
+      "faceX": 117,
+      "faceY": 95
+    },
+    {
+      "image": "face-05.png",
+      "w": 176,
+      "h": 149,
+      "emotion": "sad",
+      "intensity": 0.2,
+      "xCX": 118,
+      "yCX": 126,
+      "dxCX": 1,
+      "dyCX": -4,
+      "faceX": 103,
+      "faceY": 89
+    },
+    {
+      "image": "face-06.png",
+      "w": 136,
+      "h": 184,
+      "emotion": "neutral",
+      "intensity": 0.2,
+      "xCX": 78,
+      "yCX": 169,
+      "dxCX": -2,
+      "dyCX": 9,
+      "faceX": 72,
+      "faceY": 109
+    },
+    {
+      "image": "face-06.png",
+      "w": 136,
+      "h": 184,
+      "emotion": "happy",
+      "intensity": 0.2,
+      "xCX": 78,
+      "yCX": 169,
+      "dxCX": -2,
+      "dyCX": 9,
+      "faceX": 72,
+      "faceY": 109
+    },
+    {
+      "image": "face-07.png",
+      "w": 249,
+      "h": 168,
+      "emotion": "shout",
+      "intensity": 0.8,
+      "xCX": 141,
+      "yCX": 153,
+      "dxCX": 2,
+      "dyCX": 7,
+      "faceX": 140,
+      "faceY": 104
+    },
+    {
+      "image": "face-08.png",
+      "w": 209,
+      "h": 172,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 143,
+      "yCX": 144,
+      "dxCX": 0,
+      "dyCX": -7,
+      "faceX": 135,
+      "faceY": 98
+    }
+  ],
+  "torsos": [
+    {
+      "image": "torso-00.png",
+      "w": 231,
+      "h": 327,
+      "emotion": "wave",
+      "intensity": 0,
+      "xCX": 92,
+      "yCX": 34
+    },
+    {
+      "image": "torso-01.png",
+      "w": 189,
+      "h": 308,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 119,
+      "yCX": 22
+    },
+    {
+      "image": "torso-01.png",
+      "w": 189,
+      "h": 308,
+      "emotion": "coy",
+      "intensity": 0.6,
+      "xCX": 119,
+      "yCX": 22
+    },
+    {
+      "image": "torso-02.png",
+      "w": 200,
+      "h": 307,
+      "emotion": "pointself",
+      "intensity": 0,
+      "xCX": 107,
+      "yCX": 21
+    },
+    {
+      "image": "torso-03.png",
+      "w": 165,
+      "h": 305,
+      "emotion": "neutral",
+      "intensity": 0,
+      "xCX": 99,
+      "yCX": 22
+    },
+    {
+      "image": "torso-04.png",
+      "w": 184,
+      "h": 311,
+      "emotion": "pointother",
+      "intensity": 0,
+      "xCX": 80,
+      "yCX": 24
+    },
+    {
+      "image": "torso-05.png",
+      "w": 321,
+      "h": 320,
+      "emotion": "shrug",
+      "intensity": 0.8,
+      "xCX": 162,
+      "yCX": 16
+    },
+    {
+      "image": "torso-06.png",
+      "w": 247,
+      "h": 318,
+      "emotion": "angry",
+      "intensity": 0.8,
+      "xCX": 118,
+      "yCX": 26
+    }
+  ]
+}

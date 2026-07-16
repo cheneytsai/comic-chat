@@ -1,0 +1,143 @@
+{
+  "name": "connor",
+  "source": "v1.0-pre-modern/comicart/avatars/connor.avb",
+  "type": "simple",
+  "iconImage": "icon.png",
+  "bodies": [
+    {
+      "image": "body-00.png",
+      "w": 187,
+      "h": 416,
+      "emotion": "sad",
+      "intensity": 0.8,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-01.png",
+      "w": 166,
+      "h": 421,
+      "emotion": "neutral",
+      "intensity": 0,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-02.png",
+      "w": 192,
+      "h": 423,
+      "emotion": "laugh",
+      "intensity": 1,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-03.png",
+      "w": 184,
+      "h": 424,
+      "emotion": "bored",
+      "intensity": 0.6,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-04.png",
+      "w": 162,
+      "h": 419,
+      "emotion": "bored",
+      "intensity": 0.4,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-05.png",
+      "w": 161,
+      "h": 408,
+      "emotion": "happy",
+      "intensity": 0.6,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-06.png",
+      "w": 166,
+      "h": 419,
+      "emotion": "angry",
+      "intensity": 1,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-06.png",
+      "w": 166,
+      "h": 419,
+      "emotion": "shout",
+      "intensity": 1,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-07.png",
+      "w": 183,
+      "h": 432,
+      "emotion": "happy",
+      "intensity": 1,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-07.png",
+      "w": 183,
+      "h": 432,
+      "emotion": "laugh",
+      "intensity": 1,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-08.png",
+      "w": 195,
+      "h": 431,
+      "emotion": "sad",
+      "intensity": 0.498,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-09.png",
+      "w": 182,
+      "h": 432,
+      "emotion": "happy",
+      "intensity": 0.298,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-09.png",
+      "w": 182,
+      "h": 432,
+      "emotion": "neutral",
+      "intensity": 0,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-10.png",
+      "w": 210,
+      "h": 413,
+      "emotion": "coy",
+      "intensity": 1,
+      "faceX": 133,
+      "faceY": 131
+    },
+    {
+      "image": "body-11.png",
+      "w": 168,
+      "h": 422,
+      "emotion": "neutral",
+      "intensity": 0,
+      "faceX": 133,
+      "faceY": 131
+    }
+  ]
+}
