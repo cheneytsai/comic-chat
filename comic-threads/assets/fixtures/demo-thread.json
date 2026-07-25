@@ -1,0 +1,115 @@
+{
+  "source": "github",
+  "id": "acme/disco-ui#42",
+  "title": "Dark mode toggle turns the entire app into a disco",
+  "url": "https://github.com/acme/disco-ui/pull/42",
+  "state": "merged",
+  "participants": [
+    { "login": "octocat", "displayName": "Octo Cat", "role": "author" },
+    { "login": "grumpydev", "displayName": "Grumpy Dev", "role": "maintainer" },
+    { "login": "lisa-codes", "displayName": "Lisa", "role": "contributor" },
+    { "login": "newbie42", "displayName": "Newbie", "role": "contributor" },
+    { "login": "ci-bot[bot]", "displayName": "CI Bot", "role": "bot" }
+  ],
+  "items": [
+    {
+      "kind": "event",
+      "ts": "2026-07-10T09:00:00Z",
+      "text": "octocat opened this pull request",
+      "flavor": "open",
+      "actor": "octocat"
+    },
+    {
+      "kind": "utterance",
+      "author": "octocat",
+      "ts": "2026-07-10T09:01:00Z",
+      "mode": "say",
+      "body": "Ok so I clicked the dark mode toggle and now every button strobes through the rainbow. It is genuinely beautiful and completely unusable. Ship it? :)"
+    },
+    {
+      "kind": "utterance",
+      "author": "grumpydev",
+      "ts": "2026-07-10T09:04:00Z",
+      "mode": "say",
+      "body": "Works on my machine ;-) Did you clear your cache? You always forget to clear your cache."
+    },
+    {
+      "kind": "utterance",
+      "author": "lisa-codes",
+      "ts": "2026-07-10T09:12:00Z",
+      "mode": "say",
+      "body": "Found it. Someone left the party mode flag on. Here's the fix:",
+      "codeBlocks": [
+        {
+          "lang": "ts",
+          "text": "// theme.ts\n- const PARTY_MODE = true;\n+ const PARTY_MODE = false;\ntoggleTheme(dark ? 'midnight' : 'daylight');"
+        }
+      ]
+    },
+    {
+      "kind": "utterance",
+      "author": "newbie42",
+      "ts": "2026-07-10T09:15:00Z",
+      "mode": "say",
+      "body": "WAIT THIS IS ACTUALLY URGENT!!! MY MANAGER IS DEMOING THIS IN AN HOUR!!!",
+      "reactions": { "😱": 3, "👍": 1 }
+    },
+    {
+      "kind": "event",
+      "ts": "2026-07-10T09:16:00Z",
+      "text": "grumpydev added the labels: bug, disco-inferno",
+      "flavor": "label",
+      "actor": "grumpydev"
+    },
+    {
+      "kind": "utterance",
+      "author": "ci-bot[bot]",
+      "ts": "2026-07-10T09:17:00Z",
+      "mode": "say",
+      "body": "Build #4721 failed. 1 test failing: theme.spec.ts > toggleTheme should not summon a disco. Expected 'midnight', received 'STROBE'. See the full logs, the coverage report, the flaky-test dashboard, and seventeen other links nobody will click."
+    },
+    {
+      "kind": "utterance",
+      "author": "grumpydev",
+      "ts": "2026-07-10T09:22:00Z",
+      "mode": "whisper",
+      "body": "nit: PARTY_MODE is a wild name for a production constant. Rename to ENABLE_STROBE_OF_DOOM."
+    },
+    {
+      "kind": "event",
+      "ts": "2026-07-10T09:23:00Z",
+      "text": "grumpydev requested changes",
+      "flavor": "review-changes",
+      "actor": "grumpydev"
+    },
+    {
+      "kind": "utterance",
+      "author": "octocat",
+      "ts": "2026-07-10T09:30:00Z",
+      "mode": "say",
+      "body": "Fair. @lisa-codes can you rename it and re-run CI? You're the only one who understands the party."
+    },
+    {
+      "kind": "utterance",
+      "author": "lisa-codes",
+      "ts": "2026-07-10T09:41:00Z",
+      "mode": "say",
+      "body": "Renamed and green. LGTM 🎉 The disco has been safely contained. Thanks everyone!",
+      "reactions": { "🎉": 5, "❤️": 2 }
+    },
+    {
+      "kind": "event",
+      "ts": "2026-07-10T09:42:00Z",
+      "text": "grumpydev approved these changes",
+      "flavor": "review-approve",
+      "actor": "grumpydev"
+    },
+    {
+      "kind": "event",
+      "ts": "2026-07-10T09:43:00Z",
+      "text": "octocat merged commit a1b2c3d into main 🎉",
+      "flavor": "merge",
+      "actor": "octocat"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@comic-threads/core",
+  "version": "0.1.0",
+  "description": "Comic Threads engine: emotion inference, panel composition, and SVG rendering (a faithful-lite port of Microsoft Comic Chat's expert system). No DOM, no fetch.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vitest": "^2.1.8"
+  }
+}
