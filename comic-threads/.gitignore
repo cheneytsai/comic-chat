@@ -3,3 +3,9 @@ dist/
 *.tsbuildinfo
 .vite/
 coverage/
+
+# The repo root .gitignore has a NuGet-era "**/[Pp]ackages/*" rule (for the
+# original VC++ build's packages/ folders) that would otherwise also match
+# and silently swallow this monorepo's packages/ workspace directory.
+!/packages/
+!/packages/**
