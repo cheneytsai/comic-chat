@@ -69,6 +69,13 @@ export interface GhReviewComment {
   reactions?: GhReactions;
 }
 
+/** Git identity on `committed` timeline entries (not a GitHub user account). */
+export interface GhGitActor {
+  name?: string;
+  email?: string;
+  date?: string;
+}
+
 export interface GhTimelineEvent {
   event: string;
   created_at?: string;
@@ -79,4 +86,13 @@ export interface GhTimelineEvent {
   source?: unknown;
   rename?: { from: string; to: string };
   state_reason?: string | null;
+  // `committed` entries carry git metadata instead of created_at/actor.
+  sha?: string;
+  message?: string;
+  author?: GhGitActor;
+  committer?: GhGitActor;
+  // `review_requested` / `milestoned`
+  requested_reviewer?: GhUser | null;
+  requested_team?: { name: string } | null;
+  milestone?: { title: string };
 }

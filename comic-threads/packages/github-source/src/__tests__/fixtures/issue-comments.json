@@ -1,0 +1,9 @@
+[
+  {
+    "id": 5001,
+    "user": { "login": "grumpydev", "type": "User" },
+    "body": "Duplicate of #3. Fixed on main.",
+    "created_at": "2026-07-01T09:00:00Z",
+    "author_association": "OWNER"
+  }
+]

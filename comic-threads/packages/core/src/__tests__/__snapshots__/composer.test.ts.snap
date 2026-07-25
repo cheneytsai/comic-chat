@@ -1,0 +1,118 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`composer golden > produces a stable panel-shape snapshot 1`] = `
+[
+  {
+    "balloonKinds": [],
+    "bodies": [],
+    "caption": "octocat opened this ",
+    "decorations": [],
+    "hasTerminal": false,
+    "kind": "caption",
+    "speakers": [],
+  },
+  {
+    "balloonKinds": [
+      "speech",
+      "speech",
+      "speech",
+      "shout",
+    ],
+    "bodies": [
+      "octocat",
+      "grumpydev",
+      "lisa-codes",
+      "newbie42",
+    ],
+    "caption": undefined,
+    "decorations": [],
+    "hasTerminal": true,
+    "kind": "normal",
+    "speakers": [
+      "octocat",
+      "grumpydev",
+      "lisa-codes",
+      "newbie42",
+    ],
+  },
+  {
+    "balloonKinds": [],
+    "bodies": [],
+    "caption": "grumpydev added the ",
+    "decorations": [],
+    "hasTerminal": false,
+    "kind": "caption",
+    "speakers": [],
+  },
+  {
+    "balloonKinds": [
+      "speech",
+      "whisper",
+    ],
+    "bodies": [
+      "grumpydev",
+      "ci-bot[bot]",
+    ],
+    "caption": undefined,
+    "decorations": [],
+    "hasTerminal": false,
+    "kind": "normal",
+    "speakers": [
+      "ci-bot[bot]",
+      "grumpydev",
+    ],
+  },
+  {
+    "balloonKinds": [],
+    "bodies": [],
+    "caption": "grumpydev requested ",
+    "decorations": [],
+    "hasTerminal": false,
+    "kind": "caption",
+    "speakers": [],
+  },
+  {
+    "balloonKinds": [
+      "speech",
+      "speech",
+    ],
+    "bodies": [
+      "octocat",
+      "lisa-codes",
+    ],
+    "caption": undefined,
+    "decorations": [],
+    "hasTerminal": false,
+    "kind": "normal",
+    "speakers": [
+      "octocat",
+      "lisa-codes",
+    ],
+  },
+  {
+    "balloonKinds": [],
+    "bodies": [],
+    "caption": "grumpydev approved t",
+    "decorations": [],
+    "hasTerminal": false,
+    "kind": "caption",
+    "speakers": [],
+  },
+  {
+    "balloonKinds": [],
+    "bodies": [
+      "octocat",
+      "lisa-codes",
+      "ci-bot[bot]",
+      "grumpydev",
+    ],
+    "caption": "octocat merged commi",
+    "decorations": [
+      "stars",
+    ],
+    "hasTerminal": false,
+    "kind": "celebration",
+    "speakers": [],
+  },
+]
+`;

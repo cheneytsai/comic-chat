@@ -1,0 +1,26 @@
+[
+  {
+    "id": 2001,
+    "user": { "login": "grumpydev", "avatar_url": "https://avatars.githubusercontent.com/u/2?v=4", "type": "User" },
+    "body": "PARTY_MODE is a wild name for a production constant.",
+    "state": "CHANGES_REQUESTED",
+    "submitted_at": "2026-07-10T09:23:00Z",
+    "author_association": "OWNER"
+  },
+  {
+    "id": 2002,
+    "user": { "login": "lisa-codes", "type": "User" },
+    "body": "Reads fine to me.",
+    "state": "COMMENTED",
+    "submitted_at": "2026-07-10T11:05:00Z",
+    "author_association": "CONTRIBUTOR"
+  },
+  {
+    "id": 2003,
+    "user": { "login": "grumpydev", "type": "User" },
+    "body": "",
+    "state": "APPROVED",
+    "submitted_at": "2026-07-10T11:30:00Z",
+    "author_association": "OWNER"
+  }
+]

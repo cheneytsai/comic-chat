@@ -9,3 +9,11 @@ coverage/
 # and silently swallow this monorepo's packages/ workspace directory.
 !/packages/
 !/packages/**
+
+# The negation above re-includes everything under packages/, which would
+# otherwise re-surface node_modules/dist/etc. that the rules above meant to
+# exclude. Re-apply those exclusions scoped to packages/.
+packages/**/node_modules/
+packages/**/dist/
+packages/**/*.tsbuildinfo
+packages/**/coverage/

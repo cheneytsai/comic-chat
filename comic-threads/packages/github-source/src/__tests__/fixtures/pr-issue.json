@@ -1,0 +1,19 @@
+{
+  "number": 42,
+  "title": "Dark mode toggle turns the entire app into a disco",
+  "html_url": "https://github.com/acme/disco-ui/pull/42",
+  "state": "closed",
+  "state_reason": null,
+  "body": "The toggle strobes through the rainbow. Here is the offending line:\r\n\r\n```ts\r\nconst PARTY_MODE = true;\r\ntoggleTheme(dark ? 'strobe' : 'daylight');\r\n```\r\n\r\nSuggestions welcome!\r\n<!-- please keep this template -->",
+  "user": {
+    "login": "octocat",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1?v=4",
+    "type": "User"
+  },
+  "created_at": "2026-07-10T09:00:00Z",
+  "author_association": "CONTRIBUTOR",
+  "reactions": { "+1": 2, "-1": 0, "heart": 1, "eyes": 0, "rocket": 0 },
+  "pull_request": {
+    "merged_at": "2026-07-10T12:00:00Z"
+  }
+}

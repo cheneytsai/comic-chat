@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1001,
+    "user": { "login": "grumpydev", "avatar_url": "https://avatars.githubusercontent.com/u/2?v=4", "type": "User" },
+    "body": "Works on my machine ;-) Did you clear your cache?",
+    "created_at": "2026-07-10T09:04:00Z",
+    "author_association": "OWNER",
+    "reactions": { "+1": 1, "laugh": 2, "confused": 0 }
+  },
+  {
+    "id": 1002,
+    "user": { "login": "ci-bot[bot]", "avatar_url": "https://avatars.githubusercontent.com/in/9?v=4", "type": "Bot" },
+    "body": "## Build #4721 failed.\n\n1 test failing: `theme.spec.ts > toggleTheme should not summon a disco`. Expected 'midnight', received 'STROBE'.\n\n<details><summary>Full logs</summary>\n\nsee [the full logs](https://ci.example.com/4721), the coverage report, the flaky-test dashboard, and seventeen other links nobody will ever click on.\n\n</details>\n\n| check | status |\n| --- | --- |\n| lint | pass |\n| unit | fail |",
+    "created_at": "2026-07-10T09:17:00Z",
+    "author_association": "NONE"
+  }
+]

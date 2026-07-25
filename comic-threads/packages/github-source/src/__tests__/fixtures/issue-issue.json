@@ -1,0 +1,11 @@
+{
+  "number": 7,
+  "title": "Scrollbar eats the last row",
+  "html_url": "https://github.com/acme/disco-ui/issues/7",
+  "state": "closed",
+  "state_reason": "completed",
+  "body": "Bottom row is unreachable at 125% zoom.",
+  "user": { "login": "newbie42", "type": "User" },
+  "created_at": "2026-07-01T08:00:00Z",
+  "author_association": "NONE"
+}

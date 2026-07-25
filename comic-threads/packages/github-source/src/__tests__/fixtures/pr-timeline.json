@@ -1,0 +1,80 @@
+[
+  {
+    "event": "subscribed",
+    "created_at": "2026-07-10T09:00:30Z",
+    "actor": { "login": "grumpydev", "type": "User" }
+  },
+  {
+    "event": "commented",
+    "created_at": "2026-07-10T09:04:00Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "body": "Works on my machine ;-) Did you clear your cache?"
+  },
+  {
+    "event": "labeled",
+    "created_at": "2026-07-10T09:16:00Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "label": { "name": "bug" }
+  },
+  {
+    "event": "labeled",
+    "created_at": "2026-07-10T09:16:05Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "label": { "name": "disco-inferno" }
+  },
+  {
+    "event": "unlabeled",
+    "created_at": "2026-07-10T09:16:08Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "label": { "name": "needs-triage" }
+  },
+  {
+    "event": "labeled",
+    "created_at": "2026-07-10T09:16:20Z",
+    "actor": { "login": "lisa-codes", "type": "User" },
+    "label": { "name": "p1" }
+  },
+  {
+    "event": "assigned",
+    "created_at": "2026-07-10T09:18:00Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "assignee": { "login": "lisa-codes", "type": "User" }
+  },
+  {
+    "event": "assigned",
+    "created_at": "2026-07-10T09:18:04Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "assignee": { "login": "octocat", "type": "User" }
+  },
+  {
+    "event": "reviewed",
+    "created_at": "2026-07-10T09:23:00Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "state": "changes_requested"
+  },
+  {
+    "event": "committed",
+    "sha": "8f2c1b9aa0d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7",
+    "message": "fix: turn party mode off\n\nAlso adds a regression test for the theme toggle.",
+    "author": { "name": "Lisa Codes", "email": "lisa@example.com", "date": "2026-07-10T09:40:00Z" },
+    "committer": { "name": "Lisa Codes", "email": "lisa@example.com", "date": "2026-07-10T09:40:00Z" }
+  },
+  {
+    "event": "review_requested",
+    "created_at": "2026-07-10T09:45:00Z",
+    "actor": { "login": "octocat", "type": "User" },
+    "requested_reviewer": { "login": "grumpydev", "type": "User" }
+  },
+  {
+    "event": "merged",
+    "created_at": "2026-07-10T12:00:00Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "commit_id": "8f2c1b9aa0d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7"
+  },
+  {
+    "event": "closed",
+    "created_at": "2026-07-10T12:00:01Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "commit_id": "8f2c1b9aa0d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "event": "referenced",
+    "created_at": "2026-07-01T09:30:00Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "commit_id": "aa11bb22cc33dd44ee55ff66"
+  },
+  {
+    "event": "renamed",
+    "created_at": "2026-07-01T09:31:00Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "rename": { "from": "scrollbar bug", "to": "Scrollbar eats the last row" }
+  },
+  {
+    "event": "closed",
+    "created_at": "2026-07-01T10:00:00Z",
+    "actor": { "login": "grumpydev", "type": "User" },
+    "state_reason": "completed"
+  }
+]
