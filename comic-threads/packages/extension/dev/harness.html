@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Comic Threads extension — render harness</title>
+    <style>
+      body { margin: 0; background: #efe9db; }
+      /* Mirrors content.ts's STYLE block for the strip grid — this harness
+         doesn't load content.ts, so it needs its own copy of the same rules. */
+      .ct-strip-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 12px 20px 40px; }
+      .ct-panel-fig { margin: 0; display: block; background: #fff; border-radius: 3px; overflow: hidden; box-shadow: 0 3px 0 rgba(20,19,26,.12); line-height: 0; }
+      .ct-panel-fig > svg { display: block; width: 100%; height: auto; }
+      .ct-panel-wide { grid-column: 1 / -1; }
+      .ct-panel-celebration { box-shadow: 0 0 0 3px #ffd23f, 6px 8px 0 rgba(20,19,26,.18); }
+      .ct-panel-band { position: relative; background: none; box-shadow: none; overflow: hidden; }
+      .ct-panel-band > svg { position: absolute; left: 0; top: 50%; width: 100%; height: auto; transform: translateY(-50%); }
+    </style>
+  </head>
+  <body>
+    <script type="module" src="./harness.ts"></script>
+  </body>
+</html>

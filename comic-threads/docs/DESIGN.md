@@ -170,7 +170,8 @@ comic-threads/
 │   │   ├── src/render/          ← SVG string/vdom renderer (balloon.cpp shapes)
 │   │   └── src/characters.ts    ← manifest loading, casting, pose picking (bodycam.cpp)
 │   ├── github-source/           ← URL parsing, REST fetch, normalize, ETag poller
-│   └── web/                     ← Vite + Preact shell (routing, casting UI, settings, demo)
+│   ├── web/                     ← Vite + Preact shell (routing, casting UI, settings, demo)
+│   └── extension/               ← MV3: content script (in-page button + overlay) + background worker
 ├── tools/
 │   └── avb-extract/             ← Node CLI: .avb → PNG poses + manifest.json
 └── assets/
@@ -183,7 +184,7 @@ Data flow:
 ```
 GitHub REST ──► github-source (normalize, poll) ──► Thread
 Thread ──► core/emotion (per-utterance CEmotion) ──► core/compose (panels)
-       ──► core/render (SVG) ──► web shell (Preact) / extension shell (Phase 2)
+       ──► core/render (SVG) ──► web shell (Preact) / extension shell (MV3)
 assets/characters ──► core/characters (pose selection by emotion wheel distance)
 ```
 
@@ -310,8 +311,33 @@ placeholder art — the schema above is frozen first.
       render; live fetch if network allows), fix-ups
 - I3. Docs, license/attribution notes, commit, push
 
-### Phase 2 — the skin & the share loop *(next)*
-- Extension shell (MV3 toggle on github.com) reusing the same bundle
+### Phase 2 — the skin & the share loop
+- **Extension shell (MV3 toggle on github.com) reusing the same bundle — built.**
+  `packages/extension`: a content script drops a fixed "🗨️ View as comic"
+  button on `github.com/*/issues/*` and `*/pull/*` (placement deliberately
+  doesn't depend on GitHub's DOM — see §2's scraping argument, which applies
+  to insertion points too, not just data) and opens a full-screen overlay
+  reusing `core`'s composer/renderer directly. The actual GitHub fetch runs in
+  the background service worker, not the content script: a content script's
+  `fetch()` is subject to the *host page's* CSP, so the request goes through
+  `chrome.runtime.sendMessage` to a worker that only needs the extension's own
+  `host_permissions`. `chrome.storage.local` replaces `localStorage` for the
+  PAT and cast overrides — content-script `localStorage` is the *page's*
+  storage, shared with (and readable by) the page's own scripts, which would
+  quietly undermine "the token is only ever sent to api.github.com."
+  The glue (`roster.ts`, `comic.ts`, `casting.ts`, `settings.ts`, `speech.ts`,
+  `fitPanel.ts`, `pageLayout.ts`) is copied from `packages/web` rather than
+  factored into a shared package yet — small and DOM/fetch-free enough that
+  duplication beats a premature abstraction for a second consumer; worth
+  promoting into `core` if a third shell shows up. One thing this pass
+  surfaced that belongs in `core` itself: `renderComicSVG` nests each panel as
+  its own `<svg>` without `overflow="hidden"`, and current browsers no longer
+  clip nested SVGs by default (that UA-stylesheet special case was dropped) —
+  fixed there, but the extension additionally renders each panel as an
+  independent top-level `<svg>` in a CSS grid (mirroring `ComicStrip.tsx`)
+  rather than calling `renderComicSVG`, both to match the web app's
+  already-verified visual output and to get `fitPanel`'s overflow repacking,
+  which `renderComicSVG` doesn't apply.
 - PNG export of a page / panel share cards
 - GitHub Pages deploy workflow
 - Roster expansion (Art Pack 1 `.avb`s from v2.5), BGB backdrops

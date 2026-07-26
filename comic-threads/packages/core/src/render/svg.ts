@@ -337,7 +337,12 @@ export function renderComicSVG(comic: Comic, columns = 2): string {
       const x = gap + c * (cellW + gap);
       const y = 90 + gap + r * (cellH + gap);
       const inner = renderPanelSVG(panel).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
-      return `<svg x="${x}" y="${y}" width="${cellW}" height="${cellH}" viewBox="0 0 ${UNIT_WIDTH} ${UNIT_HEIGHT}">${inner}</svg>`;
+      // Nested <svg> elements are no longer clipped to their own viewport by
+      // default in current browsers (that UA-stylesheet special case was
+      // dropped in favor of requiring it explicitly) — without this, a
+      // balloon that slightly overflows its panel bleeds into the next one
+      // instead of being cropped at the panel border.
+      return `<svg x="${x}" y="${y}" width="${cellW}" height="${cellH}" viewBox="0 0 ${UNIT_WIDTH} ${UNIT_HEIGHT}" overflow="hidden">${inner}</svg>`;
     })
     .join("");
 

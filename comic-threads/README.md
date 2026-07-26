@@ -17,6 +17,9 @@ application.
 - Timeline events (labels, reviews, merges, closes) become narration caption
   boxes, so a PR reads as a story — with a star-burst panel when it merges.
 - Threads update live via polling; new comments animate in as new panels.
+- A companion MV3 browser extension puts a "🗨️ View as comic" button directly
+  on `github.com/*/issues/*` and `*/pull/*`, opening the same renderer in an
+  overlay — no need to leave the page or paste a URL.
 
 See [`docs/DESIGN.md`](docs/DESIGN.md) for the product brief, requirements,
 the web-app-vs-extension decision, architecture, the fidelity map back to the
@@ -29,6 +32,7 @@ the web-app-vs-extension decision, architecture, the fidelity map back to the
 | `packages/core` | the comic engine: emotion rules, panel composer, SVG renderer (no DOM, no network) |
 | `packages/github-source` | GitHub REST adapter: fetch, normalize, ETag polling |
 | `packages/web` | Vite + Preact app shell |
+| `packages/extension` | MV3 browser extension: in-page "View as comic" button + overlay for github.com |
 | `tools/avb-extract` | Node CLI that extracts `.avb` character art to PNG + manifest |
 | `assets/characters` | extracted character poses (committed build artifacts) |
 | `assets/fixtures` | sample threads for demo mode and tests |
@@ -48,6 +52,19 @@ To (re)extract character art from the original sources:
 ```bash
 npm run extract-art    # runs tools/avb-extract over ../v1.0-pre-modern/comicart/avatars
 ```
+
+## Browser extension
+
+```bash
+cd packages/extension
+npm run build           # -> dist/ (manifest, background.js, content.js, bundled character art)
+```
+
+Then in Chrome: `chrome://extensions` → enable Developer mode → **Load unpacked**
+→ select `packages/extension/dist`. Open any `github.com` issue or pull request
+and click the **🗨️ View as comic** button in the bottom-right corner (or the
+toolbar icon). The extension calls the GitHub REST API directly from its
+background service worker — it never reads or scrapes the page's DOM.
 
 ## Attribution
 

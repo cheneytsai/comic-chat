@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Comic Threads",
+  "short_name": "Comic Threads",
+  "version": "0.1.0",
+  "description": "View a GitHub issue or pull request as a Comic Chat strip, drawn with the original 1996 cast.",
+  "icons": {
+    "16": "icon-16.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  "action": {
+    "default_title": "Comic Threads — view this thread as a comic",
+    "default_icon": {
+      "16": "icon-16.png",
+      "48": "icon-48.png",
+      "128": "icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*/*/issues/*", "https://github.com/*/*/pull/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": ["https://api.github.com/*"],
+  "permissions": ["storage"],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/characters/*", "assets/fixtures/roster.json"],
+      "matches": ["https://github.com/*"]
+    }
+  ]
+}

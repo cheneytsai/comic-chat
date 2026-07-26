@@ -1,0 +1,25 @@
+{
+  "name": "@comic-threads/extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Comic Threads MV3 extension: a 'View as comic' button on GitHub issue/PR pages.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "npm run clean && npm run typecheck && npm run build:content && npm run build:background && npm run copy-static",
+    "build:content": "vite build --config vite.content.config.ts",
+    "build:background": "vite build --config vite.background.config.ts",
+    "copy-static": "node build/copy-static.mjs",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@comic-threads/core": "0.1.0",
+    "@comic-threads/github-source": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.287",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.11"
+  }
+}
