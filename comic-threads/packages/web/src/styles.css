@@ -1,0 +1,821 @@
+/* Comic Threads — newsprint-and-ink chrome around core's SVG panels. */
+
+/* No webfont import on purpose: the app must render with zero third-party
+   requests (demo mode is offline, and the only host it ever talks to is
+   api.github.com). The stack degrades to the platform's comic/cursive face. */
+
+:root {
+  --ink: #14131a;
+  --paper: #efe9db;
+  --paper-2: #f7f3e9;
+  --panel-gap: 20px;
+  --accent: #d8443c;
+  --accent-2: #2f6fd0;
+  --line: #14131a;
+  --shadow: 0 6px 0 rgba(20, 19, 26, 0.14);
+  --font-comic: "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive;
+  --font-ui:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(rgba(20, 19, 26, 0.05) 1px, transparent 1px),
+    radial-gradient(rgba(20, 19, 26, 0.05) 1px, transparent 1px);
+  background-size: 14px 14px;
+  background-position:
+    0 0,
+    7px 7px;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+code,
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+/* ---------- buttons & controls ---------- */
+
+.primary-btn,
+.ghost-btn,
+.demo-btn {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 14px;
+  border: 2.5px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+.primary-btn {
+  background: var(--accent);
+  color: #fff;
+}
+
+.ghost-btn {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.primary-btn:hover:not(:disabled),
+.ghost-btn:hover:not(:disabled),
+.demo-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+.primary-btn:active:not(:disabled),
+.ghost-btn:active:not(:disabled),
+.demo-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--line);
+}
+
+.primary-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  box-shadow: 3px 3px 0 rgba(20, 19, 26, 0.4);
+}
+
+.primary-btn.big {
+  font-size: 17px;
+  padding: 14px 26px;
+}
+
+.link-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--accent-2);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* ---------- landing ---------- */
+
+.landing {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: clamp(28px, 6vw, 76px) 20px 60px;
+}
+
+.landing-inner {
+  width: min(880px, 100%);
+  text-align: center;
+}
+
+.wordmark {
+  font-family: var(--font-comic);
+  font-weight: 700;
+  font-size: clamp(46px, 9vw, 88px);
+  line-height: 1.02;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28em;
+}
+
+.wordmark em {
+  font-style: normal;
+  color: var(--accent);
+  -webkit-text-stroke: 2px var(--line);
+  paint-order: stroke fill;
+}
+
+.wordmark-bubble {
+  display: inline-grid;
+  place-items: center;
+  width: 1.1em;
+  height: 0.92em;
+  background: #fff;
+  border: 4px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.62em;
+  box-shadow: 5px 5px 0 var(--line);
+  transform: rotate(-4deg);
+}
+
+.tagline {
+  font-family: var(--font-comic);
+  font-size: clamp(17px, 2.2vw, 21px);
+  max-width: 44ch;
+  margin: 18px auto 30px;
+  line-height: 1.45;
+}
+
+.url-form {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.url-input {
+  flex: 1 1 420px;
+  max-width: 560px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  padding: 14px 16px;
+  border: 2.5px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: inset 2px 2px 0 rgba(20, 19, 26, 0.07);
+}
+
+.url-input:focus {
+  outline: 3px solid var(--accent-2);
+  outline-offset: 1px;
+}
+
+.url-input.is-invalid {
+  border-color: var(--accent);
+  background: #fff4f3;
+}
+
+.form-help,
+.form-error {
+  font-size: 13px;
+  margin: 12px 0 0;
+  min-height: 1.2em;
+}
+
+.form-help {
+  opacity: 0.7;
+}
+
+.form-error {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.demo-cta {
+  margin: 34px 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.demo-btn {
+  background: #ffd23f;
+  color: var(--ink);
+  font-size: 19px;
+  padding: 16px 32px;
+  border-radius: 999px;
+  box-shadow: 4px 5px 0 var(--line);
+}
+
+.demo-note {
+  font-size: 13px;
+  opacity: 0.7;
+  max-width: 42ch;
+}
+
+.examples {
+  list-style: none;
+  padding: 0;
+  margin: 26px 0 0;
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+}
+
+.roster-teaser {
+  margin-top: 52px;
+  border-top: 2.5px dashed rgba(20, 19, 26, 0.28);
+  padding-top: 26px;
+}
+
+.roster-teaser h2 {
+  font-family: var(--font-comic);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 16px;
+}
+
+.roster-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.roster-row img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  background: #fff;
+  border: 2.5px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  box-shadow: 2px 2px 0 var(--line);
+}
+
+.roster-note {
+  font-size: 13px;
+  opacity: 0.72;
+  max-width: 60ch;
+  margin: 18px auto 0;
+  line-height: 1.5;
+}
+
+.landing-footer {
+  margin-top: 44px;
+  font-size: 12px;
+  opacity: 0.65;
+}
+
+/* ---------- comic view ---------- */
+
+.comic-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 22px 20px 70px;
+}
+
+.comic-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: linear-gradient(var(--paper) 82%, rgba(239, 233, 219, 0));
+  padding-bottom: 12px;
+}
+
+.comic-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+}
+
+.comic-header-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wordmark-sm {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-comic);
+  font-weight: 700;
+  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  padding: 0;
+}
+
+.wordmark-sm .wordmark-bubble {
+  width: 1.5em;
+  height: 1.25em;
+  border-width: 2.5px;
+  font-size: 0.7em;
+  box-shadow: 2px 2px 0 var(--line);
+}
+
+.comic-title {
+  font-family: var(--font-comic);
+  font-size: clamp(24px, 3.4vw, 36px);
+  line-height: 1.18;
+  margin: 14px 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.comic-sub {
+  margin: 0 0 14px;
+  font-size: 13px;
+  opacity: 0.68;
+}
+
+/* chips */
+
+.state-chip,
+.live-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+  background: #fff;
+  white-space: nowrap;
+}
+
+.state-dot,
+.live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.35);
+}
+
+.state-open {
+  background: #d6f5df;
+  color: #16713a;
+}
+
+.state-closed {
+  background: #ffdcd8;
+  color: #a3231b;
+}
+
+.state-merged {
+  background: #ead9ff;
+  color: #6236a8;
+}
+
+.live-polling {
+  background: #d6f5df;
+  color: #16713a;
+}
+
+.live-polling .live-dot {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.live-rate-limited {
+  background: #ffeccc;
+  color: #8a5300;
+}
+
+.live-error {
+  background: #ffdcd8;
+  color: #a3231b;
+}
+
+.live-offline,
+.live-idle,
+.live-stopped {
+  background: #e7e3d8;
+  color: #57534a;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
+/* ---------- cast strip ---------- */
+
+.cast {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 0 4px;
+  border-top: 2px solid rgba(20, 19, 26, 0.15);
+}
+
+.cast-slot {
+  position: relative;
+}
+
+.cast-chip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--paper-2);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: 5px 12px 5px 5px;
+  cursor: pointer;
+  font: inherit;
+  box-shadow: 2px 2px 0 var(--line);
+}
+
+.cast-chip:hover,
+.cast-chip.is-open {
+  background: #fff;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+.cast-portrait {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border: 1.5px solid rgba(20, 19, 26, 0.35);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.cast-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cast-portrait-empty {
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(45deg, #eee 0 6px, #ddd 6px 12px);
+}
+
+.cast-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.25;
+}
+
+.cast-login {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cast-role {
+  font-size: 11px;
+  opacity: 0.62;
+}
+
+/* ---------- picker popover ---------- */
+
+.picker {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 60;
+  width: min(400px, 88vw);
+  background: #fff;
+  border: 2.5px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 6px 6px 0 rgba(20, 19, 26, 0.3);
+  padding: 12px;
+}
+
+.picker-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.picker-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 3px;
+  background: var(--paper-2);
+  border: 2px solid transparent;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.picker-item img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.picker-item:hover {
+  background: #fff;
+  border-color: var(--line);
+}
+
+.picker-item.is-current {
+  border-color: var(--accent);
+  background: #fff3f2;
+}
+
+/* ---------- settings ---------- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(20, 19, 26, 0.42);
+  display: grid;
+  place-items: start center;
+  padding: min(14vh, 120px) 18px 18px;
+  backdrop-filter: blur(1.5px);
+}
+
+.popover {
+  background: var(--paper-2);
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 8px 8px 0 rgba(20, 19, 26, 0.4);
+  padding: 22px;
+  width: min(520px, 100%);
+}
+
+.settings-popover .field {
+  display: block;
+  margin-bottom: 22px;
+}
+
+.field-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+
+.field-row {
+  display: flex;
+  gap: 8px;
+}
+
+.field-row input {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  min-width: 0;
+}
+
+.settings-popover input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.field-help {
+  display: block;
+  font-size: 12px;
+  opacity: 0.68;
+  margin-top: 7px;
+  line-height: 1.45;
+}
+
+.popover-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ---------- errors / loading ---------- */
+
+.error-card {
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  background: #fff4f3;
+  padding: 22px;
+  margin: 20px 0;
+  box-shadow: 5px 5px 0 var(--line);
+}
+
+.error-card.error-rate-limit {
+  background: #fff7e4;
+}
+
+.error-card h2 {
+  font-family: var(--font-comic);
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.error-card p {
+  margin: 0 0 16px;
+  line-height: 1.55;
+  max-width: 64ch;
+}
+
+.error-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.loading {
+  font-family: var(--font-comic);
+  font-size: 20px;
+  padding: 60px 0;
+  text-align: center;
+  opacity: 0.6;
+}
+
+.empty {
+  text-align: center;
+  padding: 50px 0;
+  opacity: 0.65;
+}
+
+/* ---------- the strip ---------- */
+
+.strip-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--panel-gap);
+}
+
+@media (max-width: 780px) {
+  .strip-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.panel {
+  margin: 0;
+  display: block;
+  background: #fff;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  line-height: 0;
+}
+
+/* core's renderer emits a viewBox-only <svg>; CSS gives it its box. */
+.panel > svg,
+.panel .ct-panel {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.panel-wide {
+  grid-column: 1 / -1;
+}
+
+.panel-celebration {
+  box-shadow:
+    0 0 0 3px #ffd23f,
+    6px 8px 0 rgba(20, 19, 26, 0.18);
+}
+
+/* Narration strip: the caption box sits centred in core's 1000×760 unit space,
+   so showing the middle band of a frameless render yields a wide caption
+   ribbon across the page. */
+.panel-band {
+  position: relative;
+  /* exact height comes from the inline aspect-ratio ComicStrip measures */
+  aspect-ratio: 1000 / 150;
+  background: none;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.panel-band > svg {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: auto;
+  transform: translateY(-50%);
+}
+
+@media (max-width: 780px) {
+  .panel-wide {
+    grid-column: auto;
+  }
+}
+
+.panel-fresh {
+  animation: panel-in 620ms cubic-bezier(0.2, 0.9, 0.25, 1.15) both;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.94) rotate(-1.2deg);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-fresh {
+    animation: none;
+  }
+  .live-polling .live-dot {
+    animation: none;
+  }
+}
+
+.strip-end {
+  height: 1px;
+}
+
+.comic-footer {
+  margin-top: 44px;
+  font-size: 12px;
+  opacity: 0.6;
+  text-align: center;
+  line-height: 1.6;
+}

@@ -1,0 +1,398 @@
+{
+  "version": 1,
+  "basePath": "characters",
+  "note": "Index of extracted Microsoft Comic Chat characters. Each entry has a manifest at <basePath>/<name>/manifest.json (DESIGN.md 4.3).",
+  "characters": [
+    {
+      "name": "anna",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 288,
+      "faceCount": 18,
+      "torsoCount": 16,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "scared",
+        "shout"
+      ]
+    },
+    {
+      "name": "armando",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 132,
+      "faceCount": 12,
+      "torsoCount": 11,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "scared",
+        "shout"
+      ]
+    },
+    {
+      "name": "bolo",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 132,
+      "faceCount": 12,
+      "torsoCount": 11,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "scared",
+        "shout"
+      ]
+    },
+    {
+      "name": "connor",
+      "type": "simple",
+      "iconImage": "icon.png",
+      "poseCount": 15,
+      "faceCount": 0,
+      "torsoCount": 0,
+      "bodyCount": 15,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "shout"
+      ]
+    },
+    {
+      "name": "cro",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 169,
+      "faceCount": 13,
+      "torsoCount": 13,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "scared",
+        "shout"
+      ]
+    },
+    {
+      "name": "dan",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 187,
+      "faceCount": 17,
+      "torsoCount": 11,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "scared",
+        "shout"
+      ]
+    },
+    {
+      "name": "denise",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 162,
+      "faceCount": 18,
+      "torsoCount": 9,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "shout"
+      ]
+    },
+    {
+      "name": "glenda",
+      "type": "simple",
+      "iconImage": "icon.png",
+      "poseCount": 1,
+      "faceCount": 0,
+      "torsoCount": 0,
+      "bodyCount": 1,
+      "emotions": [
+        "neutral"
+      ]
+    },
+    {
+      "name": "hugh",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 168,
+      "faceCount": 14,
+      "torsoCount": 12,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "scared",
+        "shout"
+      ]
+    },
+    {
+      "name": "jordan",
+      "type": "simple",
+      "iconImage": "icon.png",
+      "poseCount": 14,
+      "faceCount": 0,
+      "torsoCount": 0,
+      "bodyCount": 14,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "pointother",
+        "pointself",
+        "sad",
+        "scared",
+        "shout",
+        "wave"
+      ]
+    },
+    {
+      "name": "lance",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 121,
+      "faceCount": 11,
+      "torsoCount": 11,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "neutral",
+        "sad",
+        "scared"
+      ]
+    },
+    {
+      "name": "lynnea",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 306,
+      "faceCount": 17,
+      "torsoCount": 18,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "scared",
+        "shout"
+      ]
+    },
+    {
+      "name": "margaret",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 260,
+      "faceCount": 20,
+      "torsoCount": 13,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "scared",
+        "shout"
+      ]
+    },
+    {
+      "name": "mike",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 80,
+      "faceCount": 10,
+      "torsoCount": 8,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "shout"
+      ]
+    },
+    {
+      "name": "pedagog",
+      "type": "simple",
+      "iconImage": "icon.png",
+      "poseCount": 1,
+      "faceCount": 0,
+      "torsoCount": 0,
+      "bodyCount": 1,
+      "emotions": [
+        "neutral"
+      ]
+    },
+    {
+      "name": "rainbow",
+      "type": "simple",
+      "iconImage": "icon.png",
+      "poseCount": 1,
+      "faceCount": 0,
+      "torsoCount": 0,
+      "bodyCount": 1,
+      "emotions": [
+        "neutral"
+      ]
+    },
+    {
+      "name": "susan",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 220,
+      "faceCount": 20,
+      "torsoCount": 11,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "scared",
+        "shout"
+      ]
+    },
+    {
+      "name": "tiki",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 240,
+      "faceCount": 20,
+      "torsoCount": 12,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "scared",
+        "shout"
+      ]
+    },
+    {
+      "name": "tongtyed",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 169,
+      "faceCount": 13,
+      "torsoCount": 13,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "shout"
+      ]
+    },
+    {
+      "name": "tux",
+      "type": "simple",
+      "iconImage": "icon.png",
+      "poseCount": 1,
+      "faceCount": 0,
+      "torsoCount": 0,
+      "bodyCount": 1,
+      "emotions": [
+        "neutral"
+      ]
+    },
+    {
+      "name": "waf",
+      "type": "simple",
+      "iconImage": "icon.png",
+      "poseCount": 1,
+      "faceCount": 0,
+      "torsoCount": 0,
+      "bodyCount": 1,
+      "emotions": [
+        "neutral"
+      ]
+    },
+    {
+      "name": "xeno",
+      "type": "complex",
+      "iconImage": "icon.png",
+      "poseCount": 182,
+      "faceCount": 13,
+      "torsoCount": 14,
+      "bodyCount": 0,
+      "emotions": [
+        "angry",
+        "bored",
+        "coy",
+        "happy",
+        "laugh",
+        "neutral",
+        "sad",
+        "scared",
+        "shout"
+      ]
+    }
+  ]
+}

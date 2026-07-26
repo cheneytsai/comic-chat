@@ -75,30 +75,90 @@ function balloonText(balloon: PlacedBalloon): string {
   }"${italic}${weight} fill="#111">${lines}</text>`;
 }
 
-function renderReactions(balloon: PlacedBalloon): string {
+function renderReactions(balloon: PlacedBalloon, terminal?: TerminalCard): string {
   if (!balloon.reactions || balloon.reactions.length === 0) return "";
-  let x = balloon.x + 6;
-  const y = balloon.y + balloon.h + 4;
+  const x = balloon.x + 6;
+  const defaultPillH = 26;
+  let y = balloon.y + balloon.h + 4;
+  let pillH = defaultPillH;
+  let fontSize = 16;
+
+  if (terminal) {
+    const rowWidth = balloon.reactions.reduce(
+      (w, r) => w + 30 + `${r.emoji} ${r.count}`.length * 11 + 6,
+      0,
+    );
+    const overlapsX = x + rowWidth >= terminal.x - 6 && x <= terminal.x + terminal.w + 6;
+    // Same reasoning as clipTailForTerminal: the default spot (just under the
+    // balloon) can land on top of the terminal card's text when the two are
+    // vertically adjacent. Hug the card's top edge when there's room for a
+    // full-size badge; when the balloon (esp. a spiky shout box, which draws
+    // outside its own nominal bounds) is close enough to the card that even
+    // that would clash, shrink to fit the gap; if there is no usable gap at
+    // all, drop the badges rather than smear them across whichever neighbor
+    // is closest — a missing reaction count is a smaller defect than an
+    // unreadable one.
+    if (overlapsX && y + pillH > terminal.y) {
+      const clearance = terminal.y - y;
+      if (clearance >= pillH + 8) {
+        y = terminal.y - pillH - 6;
+      } else if (clearance >= 20) {
+        pillH = clearance - 6;
+        fontSize = Math.max(11, Math.round((pillH / defaultPillH) * 16));
+        y = terminal.y - pillH - 4;
+      } else {
+        return "";
+      }
+    }
+  }
+
+  let px = x;
   const pills = balloon.reactions
     .map((r) => {
       const label = `${r.emoji} ${r.count}`;
       const w = 30 + label.length * 11;
-      const pill = `<g><rect x="${x.toFixed(1)}" y="${y.toFixed(
+      const pill = `<g><rect x="${px.toFixed(1)}" y="${y.toFixed(
         1,
-      )}" rx="13" ry="13" width="${w}" height="26" fill="#fff" stroke="#111" stroke-width="1.5"/><text x="${(
-        x +
+      )}" rx="${(pillH / 2).toFixed(1)}" ry="${(pillH / 2).toFixed(
+        1,
+      )}" width="${w}" height="${pillH.toFixed(1)}" fill="#fff" stroke="#111" stroke-width="1.5"/><text x="${(
+        px +
         w / 2
-      ).toFixed(1)}" y="${(y + 18).toFixed(1)}" text-anchor="middle" font-family=${JSON.stringify(
+      ).toFixed(1)}" y="${(y + pillH / 2 + fontSize * 0.35).toFixed(
+        1,
+      )}" text-anchor="middle" font-family=${JSON.stringify(
         FONT_STACK,
-      )} font-size="16" fill="#111">${escapeXml(label)}</text></g>`;
-      x += w + 6;
+      )} font-size="${fontSize}" fill="#111">${escapeXml(label)}</text></g>`;
+      px += w + 6;
       return pill;
     })
     .join("");
   return pills;
 }
 
-function renderBalloon(balloon: PlacedBalloon): string {
+/**
+ * A tail routes straight from the balloon to its speaker's anchor point, with
+ * no awareness of what else sits in between. When a terminal card (F6) is
+ * anchored between the balloon zone and the body zone, a speaker positioned
+ * behind the card gets a tail that cuts straight through the card's text —
+ * so pull the endpoint up to the card's top edge whenever the straight line
+ * would otherwise have to cross it.
+ */
+function clipTailForTerminal(
+  tailX: number,
+  tailY: number,
+  terminal: TerminalCard | undefined,
+): { x: number; y: number } {
+  if (!terminal) return { x: tailX, y: tailY };
+  const pad = 10;
+  const crossesTerminalBand = tailX >= terminal.x - pad && tailX <= terminal.x + terminal.w + pad;
+  if (crossesTerminalBand && tailY > terminal.y) {
+    return { x: tailX, y: terminal.y - 6 };
+  }
+  return { x: tailX, y: tailY };
+}
+
+function renderBalloon(balloon: PlacedBalloon, terminal?: TerminalCard): string {
   const box: Box = { x: balloon.x, y: balloon.y, w: balloon.w, h: balloon.h };
   const hasTail = balloon.tailX !== undefined && balloon.tailY !== undefined && balloon.kind !== "caption";
   const stroke = balloon.kind === "whisper" ? 2.5 : 3;
@@ -107,8 +167,9 @@ function renderBalloon(balloon: PlacedBalloon): string {
   let tail = "";
   let bubbleTrail = "";
   if (hasTail) {
+    const clipped = clipTailForTerminal(balloon.tailX!, balloon.tailY!, terminal);
     if (balloon.kind === "thought") {
-      bubbleTrail = thoughtTrail(box, balloon.tailX!, balloon.tailY!)
+      bubbleTrail = thoughtTrail(box, clipped.x, clipped.y)
         .map(
           (b) =>
             `<circle cx="${(b.x + b.w / 2).toFixed(1)}" cy="${(b.y + b.h / 2).toFixed(1)}" r="${(
@@ -117,7 +178,7 @@ function renderBalloon(balloon: PlacedBalloon): string {
         )
         .join("");
     } else {
-      tail = `<path d="${tailPath(box, balloon.tailX!, balloon.tailY!)}" fill="#fff" stroke="#111" stroke-width="${stroke}" stroke-linejoin="round"/>`;
+      tail = `<path d="${tailPath(box, clipped.x, clipped.y)}" fill="#fff" stroke="#111" stroke-width="${stroke}" stroke-linejoin="round"/>`;
     }
   }
 
@@ -128,7 +189,7 @@ function renderBalloon(balloon: PlacedBalloon): string {
 
   // Tail drawn first (behind the cloud), then cloud covers the base seam.
   const cloud = `<path d="${shapePath}" fill="#fff" stroke="#111" stroke-width="${stroke}"${dash} stroke-linejoin="round"/>`;
-  return `${tail}${bubbleTrail}${cloud}${balloonText(balloon)}${renderReactions(balloon)}`;
+  return `${tail}${bubbleTrail}${cloud}${balloonText(balloon)}${renderReactions(balloon, terminal)}`;
 }
 
 function renderTerminal(card: TerminalCard): string {
@@ -241,7 +302,7 @@ export function renderPanelSVG(panel: Panel, options: PanelRenderOptions = {}): 
   const stars = renderStars(panel);
   const bodies = panel.bodies.map(renderBody).join("");
   const terminal = panel.terminal ? renderTerminal(panel.terminal) : "";
-  const balloons = panel.balloons.map(renderBalloon).join("");
+  const balloons = panel.balloons.map((b) => renderBalloon(b, panel.terminal)).join("");
   const caption = renderCaption(panel);
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${UNIT_WIDTH} ${UNIT_HEIGHT}" class="ct-panel" preserveAspectRatio="xMidYMid meet">`,

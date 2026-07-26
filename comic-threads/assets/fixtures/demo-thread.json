@@ -38,7 +38,7 @@
       "author": "lisa-codes",
       "ts": "2026-07-10T09:12:00Z",
       "mode": "say",
-      "body": "Found it. Someone left the party mode flag on. Here's the fix:",
+      "body": "Found it. Someone left the **party mode** flag on. Here's the fix: [code:1]",
       "codeBlocks": [
         {
           "lang": "ts",
@@ -66,14 +66,14 @@
       "author": "ci-bot[bot]",
       "ts": "2026-07-10T09:17:00Z",
       "mode": "say",
-      "body": "Build #4721 failed. 1 test failing: theme.spec.ts > toggleTheme should not summon a disco. Expected 'midnight', received 'STROBE'. See the full logs, the coverage report, the flaky-test dashboard, and seventeen other links nobody will click."
+      "body": "Build #4721 failed. 1 test failing: theme.spec.ts > toggleTheme should not summon a disco. Expected 'midnight', received 'STROBE'. See [the full logs](https://ci.example.com/builds/4721), the coverage report, the flaky-test dashboard, and seventeen other links nobody will click."
     },
     {
       "kind": "utterance",
       "author": "grumpydev",
       "ts": "2026-07-10T09:22:00Z",
       "mode": "whisper",
-      "body": "nit: PARTY_MODE is a wild name for a production constant. Rename to ENABLE_STROBE_OF_DOOM."
+      "body": "nit: `PARTY_MODE` is a wild name for a production constant. Rename to `ENABLE_STROBE_OF_DOOM`."
     },
     {
       "kind": "event",
