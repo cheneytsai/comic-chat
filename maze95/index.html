@@ -55,7 +55,7 @@ body{
 #gl{position:absolute; inset:0; width:100%; height:100%; display:block; cursor:crosshair}
 #vignette{
   position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(ellipse at 50% 52%, rgba(0,0,0,0) 42%, rgba(0,0,0,.55) 100%);
+  background:radial-gradient(ellipse at 50% 52%, rgba(0,0,0,0) 58%, rgba(0,0,0,.28) 100%);
 }
 #scan{
   position:absolute; inset:0; pointer-events:none; opacity:.16;
@@ -326,6 +326,29 @@ body.touch #touch{display:block}
             <option value="hedge">Hedgerow</option>
           </select>
         </div>
+        <div class="row"><label for="s-floor">Floor style</label>
+          <select id="s-floor">
+            <option value="classic">Grey stone (1995)</option>
+            <option value="auto">Match walls</option>
+            <option value="checker">Checkerboard</option>
+            <option value="concrete">Poured concrete</option>
+            <option value="carpet">Office carpet</option>
+            <option value="marble">Polished marble</option>
+            <option value="grate">Steel grating</option>
+            <option value="soil">Bare earth</option>
+          </select>
+        </div>
+        <div class="row"><label for="s-ceil">Ceiling style</label>
+          <select id="s-ceil">
+            <option value="classic">Grey stone (1995)</option>
+            <option value="auto">Match walls</option>
+            <option value="panels">Suspended panels</option>
+            <option value="concrete">Poured concrete</option>
+            <option value="girders">Steel girders</option>
+            <option value="stars">Night sky (roofless)</option>
+            <option value="neon">Neon grid</option>
+          </select>
+        </div>
         <div class="row"><label class="chk"><input type="checkbox" id="s-decor" checked><span class="box"></span>Wall plaques</label>
           <label class="chk"><input type="checkbox" id="s-exit" checked><span class="box"></span>Exit portal</label></div>
         <div class="row"><label class="chk"><input type="checkbox" id="s-drift" checked><span class="box"></span>Drifting polyhedra</label>
@@ -334,7 +357,13 @@ body.touch #touch{display:block}
 
       <fieldset>
         <legend>Display</legend>
-        <div class="row"><label for="s-fog">Torch range</label><span class="val" id="v-fog">55</span><input type="range" id="s-fog" min="15" max="140" step="5" value="55"></div>
+        <div class="row"><label for="s-light">Lighting</label>
+          <select id="s-light">
+            <option value="classic">Classic fade (1995)</option>
+            <option value="torch">Torchlit</option>
+          </select>
+        </div>
+        <div class="row"><label for="s-fog">Light range</label><span class="val" id="v-fog">90</span><input type="range" id="s-fog" min="15" max="200" step="5" value="90"></div>
         <div class="row"><label for="s-fov">Field of view</label><span class="val" id="v-fov">75</span><input type="range" id="s-fov" min="55" max="105" step="1" value="75"></div>
         <div class="row"><label for="s-wall">Wall height</label><span class="val" id="v-wall">10</span><input type="range" id="s-wall" min="6" max="20" step="1" value="10"></div>
         <div class="row"><label for="s-res">Render scale</label><span class="val" id="v-res">100</span><input type="range" id="s-res" min="35" max="100" step="5" value="100"></div>
@@ -357,6 +386,7 @@ body.touch #touch{display:block}
         <div class="btns" style="margin-top:8px">
           <button class="btn" id="b-regen2">New maze</button>
           <button class="btn" id="b-replay">Restart this one</button>
+          <button class="btn" id="b-classic">Classic 95</button>
           <button class="btn" id="b-reset">Defaults</button>
         </div>
       </fieldset>
@@ -385,7 +415,7 @@ body.touch #touch{display:block}
 
 <div id="touch"><div id="stick"><div id="nub"></div></div></div>
 
-<div id="hint"><kbd>Click</kbd> to take control &nbsp;&middot;&nbsp; <kbd>W A S D</kbd> move &nbsp;&middot;&nbsp; <kbd>Esc</kbd> hand it back</div>
+<div id="hint"><kbd>Click</kbd> to take control &nbsp;&middot;&nbsp; <kbd>W A S D</kbd> move &nbsp;&middot;&nbsp; <kbd>Tab</kbd> map &nbsp;&middot;&nbsp; <kbd>Esc</kbd> hand it back</div>
 <div id="toast" role="status"></div>
 
 <div id="bar">
@@ -547,11 +577,11 @@ const THEMES = {
     fog:"#04050a", floor:"#5e5a55", ceil:"#413c39", accent:"#ffb24a",
     wall(x){ const s=128,c=cv(s),g=c.getContext("2d");
       g.fillStyle="#2a2020"; g.fillRect(0,0,s,s);
-      const rows=8, bh=s/rows;
+      const rows=6, cols=4, bh=s/rows, bw0=s/cols;
       for(let r=0;r<rows;r++){
-        const off=(r%2)?bh*1.0:0;
-        for(let i=-1;i<5;i++){
-          const bx=off+i*(s/4)+1.5, by=r*bh+1.5, bw=s/4-3, bhh=bh-3;
+        const off=(r%2)?bw0/2:0;                    // half-brick stagger, like the original course
+        for(let i=-1;i<=cols;i++){
+          const bx=off+i*bw0+1.5, by=r*bh+1.5, bw=bw0-3, bhh=bh-3;
           const t=Math.random()*26-13;
           g.fillStyle=`rgb(${clamp(138+t,0,255)|0},${clamp(64+t*0.7,0,255)|0},${clamp(46+t*0.6,0,255)|0})`;
           g.fillRect(bx,by,bw,bhh);
@@ -614,22 +644,168 @@ const THEMES = {
   }
 };
 
-function floorTex(theme){
-  const s=128,c=cv(s),g=c.getContext("2d");
-  g.fillStyle=theme.floor; g.fillRect(0,0,s,s);
-  g.fillStyle="rgba(0,0,0,.22)";
-  for(let r=0;r<4;r++) for(let i=0;i<4;i++) if((r+i)%2) g.fillRect(i*32,r*32,32,32);
-  g.strokeStyle="rgba(0,0,0,.35)"; g.lineWidth=2;
-  for(let i=0;i<=4;i++){ g.beginPath(); g.moveTo(i*32,0); g.lineTo(i*32,s); g.moveTo(0,i*32); g.lineTo(s,i*32); g.stroke(); }
-  noise(g,s,20); return c;
+/* ---- floor styles: each returns a tiling canvas plus how brightly it is lit ---- */
+/* the plain mottled grey the 1995 screensaver used above and below the bricks */
+function mottle(base, dark, s){
+  const c=cv(s), g=c.getContext("2d");
+  g.fillStyle=base; g.fillRect(0,0,s,s);
+  for(let i=0;i<1600;i++){                      // fine grain, not cloud: it has to read as stone
+    const v=Math.random();
+    g.fillStyle = v<0.5 ? `rgba(${dark},.10)` : "rgba(255,255,255,.07)";
+    g.beginPath();
+    g.ellipse(Math.random()*s, Math.random()*s, 1+Math.random()*3.2, 1+Math.random()*2.6, Math.random()*TAU, 0, TAU);
+    g.fill();
+  }
+  noise(g,s,22); return c;
 }
-function ceilTex(theme){
-  const s=128,c=cv(s),g=c.getContext("2d");
-  g.fillStyle=theme.ceil; g.fillRect(0,0,s,s);
-  g.fillStyle="rgba(255,255,255,.05)";
-  for(let i=0;i<3;i++) g.fillRect(0, 20+i*40, s, 5);
-  noise(g,s,16); return c;
-}
+
+const FLOORS = {
+  classic:{ bright:0.88, tex(){ return mottle("#8e8e8c","70,70,70",128); } },
+  auto:{ bright:0.84, tex(theme){                       // takes its colour from the wall style
+    const s=128,c=cv(s),g=c.getContext("2d");
+    g.fillStyle=theme.floor; g.fillRect(0,0,s,s);
+    g.fillStyle="rgba(0,0,0,.22)";
+    for(let r=0;r<4;r++) for(let i=0;i<4;i++) if((r+i)%2) g.fillRect(i*32,r*32,32,32);
+    g.strokeStyle="rgba(0,0,0,.35)"; g.lineWidth=2;
+    for(let i=0;i<=4;i++){ g.beginPath(); g.moveTo(i*32,0); g.lineTo(i*32,s); g.moveTo(0,i*32); g.lineTo(s,i*32); g.stroke(); }
+    noise(g,s,20); return c; } },
+
+  checker:{ bright:0.92, tex(){                         // the hard black-and-white demo floor
+    const s=128,c=cv(s),g=c.getContext("2d");
+    for(let r=0;r<4;r++) for(let i=0;i<4;i++){ g.fillStyle=((r+i)%2)?"#dcdcd6":"#26262a"; g.fillRect(i*32,r*32,32,32); }
+    noise(g,s,10); return c; } },
+
+  concrete:{ bright:0.86, tex(){
+    const s=128,c=cv(s),g=c.getContext("2d");
+    g.fillStyle="#77746e"; g.fillRect(0,0,s,s);
+    for(let i=0;i<520;i++){ const d=Math.random()<0.5;
+      g.fillStyle = d ? "rgba(38,38,42,.30)" : "rgba(214,212,205,.28)";
+      g.fillRect(Math.random()*s, Math.random()*s, 1+Math.random()*2.4, 1+Math.random()*2.4); }
+    g.strokeStyle="rgba(30,28,26,.45)"; g.lineWidth=3;               // slab joints on the tile edges
+    g.strokeRect(0,0,s,s);
+    noise(g,s,18); return c; } },
+
+  carpet:{ bright:0.80, tex(){                          // flecked office loop pile, circa 1995
+    const s=128,c=cv(s),g=c.getContext("2d");
+    g.fillStyle="#3d4d5e"; g.fillRect(0,0,s,s);
+    const fleck=["#2c3a48","#556b80","#7c6a4f","#8ea3b5","#243040"];
+    for(let i=0;i<2600;i++){ g.fillStyle=fleck[(Math.random()*fleck.length)|0];
+      g.fillRect(Math.random()*s, Math.random()*s, 1.6, 1.6); }
+    noise(g,s,14); return c; } },
+
+  marble:{ bright:0.94, tex(){
+    const s=128,c=cv(s),g=c.getContext("2d");
+    g.fillStyle="#d6d2c8"; g.fillRect(0,0,s,s);
+    g.lineCap="round";
+    for(let i=0;i<26;i++){                                // veins
+      g.strokeStyle=`rgba(${90+Math.random()*60|0},${88+Math.random()*60|0},${92+Math.random()*60|0},.22)`;
+      g.lineWidth=0.6+Math.random()*2.2;
+      let x=Math.random()*s, y=Math.random()*s;
+      g.beginPath(); g.moveTo(x,y);
+      for(let k=0;k<4;k++){ x+=(Math.random()-0.5)*70; y+=(Math.random()-0.5)*70; g.lineTo(x,y); }
+      g.stroke();
+    }
+    g.strokeStyle="rgba(60,58,54,.5)"; g.lineWidth=2;     // 2x2 polished tiles
+    g.beginPath(); g.moveTo(64,0); g.lineTo(64,s); g.moveTo(0,64); g.lineTo(s,64); g.stroke();
+    g.strokeRect(0,0,s,s);
+    noise(g,s,8); return c; } },
+
+  grate:{ bright:0.82, tex(){                            // steel walkway over nothing in particular
+    const s=128,c=cv(s),g=c.getContext("2d");
+    g.fillStyle="#0b0c0e"; g.fillRect(0,0,s,s);
+    g.fillStyle="#6a6f76";
+    for(let r=0;r<8;r++) for(let i=0;i<8;i++){
+      const x=i*16, y=r*16;
+      g.fillRect(x,y,16,4); g.fillRect(x,y,4,16);
+      g.fillStyle="rgba(255,255,255,.14)"; g.fillRect(x,y,16,1.5); g.fillStyle="#6a6f76";
+    }
+    noise(g,s,20); return c; } },
+
+  soil:{ bright:0.80, tex(){
+    const s=128,c=cv(s),g=c.getContext("2d");
+    g.fillStyle="#5b452c"; g.fillRect(0,0,s,s);
+    for(let i=0;i<900;i++){ const v=Math.random();
+      g.fillStyle=`rgba(${(70+v*90)|0},${(54+v*66)|0},${(34+v*40)|0},.6)`;
+      g.beginPath(); g.ellipse(Math.random()*s, Math.random()*s, 1+Math.random()*4, 1+Math.random()*3, Math.random()*TAU, 0, TAU); g.fill(); }
+    for(let i=0;i<40;i++){ g.fillStyle="rgba(150,146,138,.55)";     // pebbles
+      g.beginPath(); g.arc(Math.random()*s, Math.random()*s, 1+Math.random()*2.2, 0, TAU); g.fill(); }
+    noise(g,s,16); return c; } }
+};
+
+/* ---- ceiling styles ---- */
+const CEILINGS = {
+  classic:{ bright:0.66, tex(){ return mottle("#75757a","54,54,58",128); } },
+  auto:{ bright:0.62, tex(theme){
+    const s=128,c=cv(s),g=c.getContext("2d");
+    g.fillStyle=theme.ceil; g.fillRect(0,0,s,s);
+    g.fillStyle="rgba(255,255,255,.05)";
+    for(let i=0;i<3;i++) g.fillRect(0, 20+i*40, s, 5);
+    noise(g,s,16); return c; } },
+
+  panels:{ bright:0.76, tex(){                           // suspended office tiles, one lamp in four
+    const s=128,c=cv(s),g=c.getContext("2d");
+    g.fillStyle="#c8c4b6"; g.fillRect(0,0,s,s);
+    for(let r=0;r<2;r++) for(let i=0;i<2;i++){
+      const x=i*64, y=r*64;
+      g.fillStyle = (r===0 && i===1) ? "#fdf6d8" : "#bdb9ab";       // the fluorescent panel
+      g.fillRect(x+3,y+3,58,58);
+      if (!(r===0 && i===1)){
+        g.fillStyle="rgba(120,116,104,.5)";
+        for(let a=0;a<9;a++) for(let b=0;b<9;b++) g.fillRect(x+8+a*6, y+8+b*6, 2, 2);
+      }
+    }
+    g.strokeStyle="#8f8b80"; g.lineWidth=3;
+    g.beginPath(); g.moveTo(64,0); g.lineTo(64,s); g.moveTo(0,64); g.lineTo(s,64); g.stroke();
+    g.strokeRect(0,0,s,s);
+    noise(g,s,8); return c; } },
+
+  concrete:{ bright:0.60, tex(){
+    const s=128,c=cv(s),g=c.getContext("2d");
+    g.fillStyle="#5e5b57"; g.fillRect(0,0,s,s);
+    for(let i=0;i<420;i++){ g.fillStyle = Math.random()<0.5 ? "rgba(26,26,28,.35)" : "rgba(190,188,182,.20)";
+      g.fillRect(Math.random()*s, Math.random()*s, 1+Math.random()*2.4, 1+Math.random()*2.4); }
+    g.strokeStyle="rgba(24,22,20,.5)"; g.lineWidth=3; g.strokeRect(0,0,s,s);
+    noise(g,s,16); return c; } },
+
+  girders:{ bright:0.68, tex(){                          // steel beams over an unfinished ceiling
+    const s=128,c=cv(s),g=c.getContext("2d");
+    g.fillStyle="#1d1f24"; g.fillRect(0,0,s,s);
+    const beam=(x,y,w,h)=>{ g.fillStyle="#5c626b"; g.fillRect(x,y,w,h);
+      g.fillStyle="rgba(255,255,255,.16)"; g.fillRect(x,y,w,2);
+      g.fillStyle="rgba(0,0,0,.35)"; g.fillRect(x,y+h-2,w,2); };
+    beam(0,10,s,14); beam(0,94,s,14); beam(56,0,16,s);
+    g.fillStyle="#3a3f47";                                 // rivets
+    for(let i=8;i<s;i+=16){ g.fillRect(i,14,3,3); g.fillRect(i,98,3,3); }
+    noise(g,s,14); return c; } },
+
+  stars:{ bright:1.0, tex(){                             // roofless: a maze under a night sky
+    const s=128,c=cv(s),g=c.getContext("2d");
+    const sky=g.createLinearGradient(0,0,0,s);
+    sky.addColorStop(0,"#080d1e"); sky.addColorStop(1,"#0d1430");
+    g.fillStyle=sky; g.fillRect(0,0,s,s);
+    for(let i=0;i<260;i++){
+      const x=Math.random()*s, y=Math.random()*s, r=Math.random()*1.1+0.3, a=0.25+Math.random()*0.75;
+      g.fillStyle=`rgba(${215+Math.random()*40|0},${225+Math.random()*30|0},255,${a})`;
+      g.beginPath(); g.arc(x,y,r,0,TAU); g.fill();
+    }
+    for(let i=0;i<5;i++){                                  // a few bright ones
+      const x=Math.random()*s, y=Math.random()*s;
+      const gr=g.createRadialGradient(x,y,0,x,y,6);
+      gr.addColorStop(0,"rgba(255,255,255,.95)"); gr.addColorStop(1,"rgba(255,255,255,0)");
+      g.fillStyle=gr; g.fillRect(x-6,y-6,12,12);
+    }
+    return c; } },
+
+  neon:{ bright:1.0, tex(theme){
+    const s=128,c=cv(s),g=c.getContext("2d");
+    g.fillStyle="#05060a"; g.fillRect(0,0,s,s);
+    g.strokeStyle=theme.accent; g.lineWidth=2; g.shadowColor=theme.accent; g.shadowBlur=8;
+    g.beginPath();
+    for(let i=0;i<=4;i++){ g.moveTo(i*32,0); g.lineTo(i*32,s); g.moveTo(0,i*32); g.lineTo(s,i*32); }
+    g.stroke(); g.shadowBlur=0;
+    return c; } }
+};
+
 /* four plaques in a 2x2 atlas — the wall art that breaks up the corridors */
 function decorTex(theme){
   const s=256,c=cv(s),g=c.getContext("2d"); const q=128;
@@ -681,12 +857,12 @@ void main(){
 }`;
 const FS = `
 precision mediump float;
-uniform sampler2D uTex; uniform vec3 uFog; uniform float uNear, uFar, uAlpha;
+uniform sampler2D uTex; uniform vec3 uFog; uniform float uNear, uFar, uAlpha, uFalloff;
 varying vec2 vUV; varying vec3 vCol; varying float vDist;
 void main(){
   vec4 t = texture2D(uTex, vUV);
   float f = clamp((vDist - uNear) / max(uFar - uNear, 0.001), 0.0, 1.0);
-  f = f * f;                                   // torch falls off fast, like the original
+  f = pow(f, uFalloff);                        // 1.0 = the original's gentle fade, 2.0 = torchlit
   vec3 c = mix(t.rgb * vCol, uFog, f);
   float a = t.a * uAlpha;
   if (a < 0.02) discard;
@@ -705,7 +881,7 @@ const A = { pos:gl.getAttribLocation(prog,"aPos"), uv:gl.getAttribLocation(prog,
 const U = { proj:gl.getUniformLocation(prog,"uProj"), view:gl.getUniformLocation(prog,"uView"),
             tex:gl.getUniformLocation(prog,"uTex"), fog:gl.getUniformLocation(prog,"uFog"),
             near:gl.getUniformLocation(prog,"uNear"), far:gl.getUniformLocation(prog,"uFar"),
-            alpha:gl.getUniformLocation(prog,"uAlpha") };
+            alpha:gl.getUniformLocation(prog,"uAlpha"), falloff:gl.getUniformLocation(prog,"uFalloff") };
 gl.enableVertexAttribArray(A.pos); gl.enableVertexAttribArray(A.uv); gl.enableVertexAttribArray(A.col);
 gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
 gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -785,8 +961,8 @@ function buildScene(M, opt, tex){
 
   // floor + ceiling as two big tiled quads
   const wx = W*CELL, wz = H*CELL;
-  floor.quad([0,0,wz],[wx,0,wz],[wx,0,0],[0,0,0], 0,0,W,H, B_FLOOR);
-  ceil .quad([0,hgt,0],[wx,hgt,0],[wx,hgt,wz],[0,hgt,wz], 0,0,W,H, B_CEIL);
+  floor.quad([0,0,wz],[wx,0,wz],[wx,0,0],[0,0,0], 0,0,W,H, tex.floorBright ?? B_FLOOR);
+  ceil .quad([0,hgt,0],[wx,hgt,0],[wx,hgt,wz],[0,hgt,wz], 0,0,W,H, tex.ceilBright ?? B_CEIL);
 
   const plaque = (x0,z0,x1,z1,ny) => {        // a decor quad floated just off a wall face
     const t = Math.floor(rr()*4), u0=(t%2)*0.5, v0=(t<2?0:0.5);
@@ -846,15 +1022,23 @@ const SHAPES = (() => {
 })();
 
 /* =========================  STATE  ======================================= */
+const SETTINGS_VERSION = 2;
 const DEFAULTS = {
-  size:14, braid:15, theme:"brick", decor:true, exitOn:true, drift:true, regen:true,
-  fog:55, fov:75, wallHeight:10, res:100, scan:true, bob:true, reveal:false, mini:true,
+  v:SETTINGS_VERSION,
+  size:14, braid:0, theme:"brick", floorStyle:"classic", ceilStyle:"classic",
+  decor:true, exitOn:true, drift:false, regen:true,
+  fog:90, fov:75, wallHeight:10, res:100, lighting:"classic",
+  scan:false, bob:false, reveal:false, mini:true,
   speed:14, sens:10, idle:12
 };
+/* everything the 1995 screensaver was: perfect maze, no exit, no goal, no stopping */
+const CLASSIC = { theme:"brick", floorStyle:"classic", ceilStyle:"classic", lighting:"classic",
+  braid:0, fog:90, fov:75, wallHeight:10, decor:true, drift:false, scan:false, bob:false,
+  exitOn:false, regen:false, reveal:false, speed:14 };
 let opt = Object.assign({}, DEFAULTS);
 try {
   const saved = JSON.parse(localStorage.getItem("maze95.settings") || "null");
-  if (saved && typeof saved === "object") opt = Object.assign(opt, saved);
+  if (saved && typeof saved === "object" && saved.v === SETTINGS_VERSION) opt = Object.assign(opt, saved);
 } catch (e) { /* private mode, blocked storage — defaults are fine */ }
 const saveOpts = () => { try { localStorage.setItem("maze95.settings", JSON.stringify(opt)); } catch(e){} };
 
@@ -870,18 +1054,37 @@ function cellOf(px,pz){ return [clamp(Math.floor(px/CELL),0,M.W-1), clamp(Math.f
 function facing(){ return ((Math.round(cam.yaw / (Math.PI/2)) % 4) + 4) % 4; }
 const compass = () => DIRNAME[facing()];
 
+/* Textures and geometry are rebuilt on their own, so restyling the floor or the
+   ceiling does not throw away the maze you are standing in. */
+function disposeTextures(){ if (tex) for (const k of ["wall","floor","ceil","decor"]) if (tex[k]) gl.deleteTexture(tex[k]); }
+function disposeGeometry(){
+  if (scene) for (const k in scene) gl.deleteBuffer(scene[k].buf);
+  if (portal) gl.deleteBuffer(portal.buf);
+}
+function buildTextures(){
+  disposeTextures();
+  theme = THEMES[opt.theme] || THEMES.brick;
+  const f = FLOORS[opt.floorStyle] || FLOORS.auto, c = CEILINGS[opt.ceilStyle] || CEILINGS.auto;
+  tex = {
+    wall: texFromCanvas(theme.wall(), true),
+    floor: texFromCanvas(f.tex(theme), true),
+    ceil: texFromCanvas(c.tex(theme), true),
+    decor: texFromCanvas(decorTex(theme), false),
+    floorBright: f.bright, ceilBright: c.bright
+  };
+}
+function rebuildGeometry(){
+  disposeGeometry();
+  scene = buildScene(M, opt, tex);
+  portal = buildPortal(M, opt.wallHeight);
+}
+function restyle(){ if (!M) return; buildTextures(); rebuildGeometry(); mapDirty = true; }
+
 function newMaze(seedText, keepPos){
   const S = clamp(opt.size|0, 6, 32);
   M = buildMaze(S, S, seedText || newSeedText(), opt.braid);
-  theme = THEMES[opt.theme] || THEMES.brick;
-  tex = {
-    wall: texFromCanvas(theme.wall(), true),
-    floor: texFromCanvas(floorTex(theme), true),
-    ceil: texFromCanvas(ceilTex(theme), true),
-    decor: texFromCanvas(decorTex(theme), false)
-  };
-  scene = buildScene(M, opt, tex);
-  portal = buildPortal(M, opt.wallHeight);
+  buildTextures();
+  rebuildGeometry();
   visited = new Uint8Array(M.W*M.H);
   cam.x = (M.start[0]+0.5)*CELL; cam.z = (M.start[1]+0.5)*CELL;
   cam.y = EYE; cam.pitch = 0;
@@ -1092,8 +1295,9 @@ function frame(now){
   gl.uniformMatrix4fv(U.proj,false, perspective(opt.fov, W2/H2, 0.6, 800));
   gl.uniformMatrix4fv(U.view,false, viewMatrix(cam.x, cam.y+bobY, cam.z, cam.yaw, cam.pitch));
   gl.uniform3fv(U.fog, fog);
-  gl.uniform1f(U.near, opt.fog*0.16);
+  gl.uniform1f(U.near, opt.fog * (opt.lighting === "torch" ? 0.16 : 0.28));
   gl.uniform1f(U.far, opt.fog);
+  gl.uniform1f(U.falloff, opt.lighting === "torch" ? 2.0 : 1.0);
   gl.uniform1i(U.tex, 0); gl.activeTexture(gl.TEXTURE0);
 
   gl.depthMask(true);
@@ -1207,6 +1411,11 @@ addEventListener("keydown", e => {
     if (mode !== "human"){ stopNav("player took over"); setMode("human"); }
   }
   if (k === "n" && !e.metaKey && !e.ctrlKey && e.target.tagName !== "INPUT"){ newMaze(null); toast("New maze"); }
+  if (k === "tab" && e.target.tagName !== "INPUT" && e.target.tagName !== "SELECT"){
+    e.preventDefault();
+    opt.mini = !opt.mini; saveOpts(); syncControls(); applyAll();
+    toast(opt.mini ? "Map on" : "Map off");
+  }
 });
 addEventListener("keyup", e => keys.delete(e.key.toLowerCase()));
 addEventListener("blur", () => keys.clear());
@@ -1308,6 +1517,10 @@ $("b-regen").addEventListener("click", () => { newMaze(null); toast("New maze ·
 $("b-regen2").addEventListener("click", () => { newMaze(null); toast("New maze · seed " + M.seed); });
 $("b-replay").addEventListener("click", () => { newMaze(M.seed); toast("Back to the start of " + M.seed); });
 $("b-auto").addEventListener("click", () => { stopNav("mode changed"); setMode(mode === "auto" ? "human" : "auto"); });
+$("b-classic").addEventListener("click", () => {
+  Object.assign(opt, CLASSIC); saveOpts(); syncControls(); restyle(); applyAll();
+  toast("Classic 95 · brick, grey, no exit, no end");
+});
 $("b-reset").addEventListener("click", () => { opt = Object.assign({}, DEFAULTS); saveOpts(); syncControls(); applyAll(); toast("Defaults restored"); });
 
 /* settings <-> options */
@@ -1315,13 +1528,16 @@ const CONTROLS = [
   ["s-size","size","int","v-size"], ["s-braid","braid","int","v-braid"],
   ["s-fog","fog","int","v-fog"], ["s-fov","fov","int","v-fov"],
   ["s-wall","wallHeight","int","v-wall"], ["s-res","res","int","v-res"],
+  ["s-light","lighting","str"],
   ["s-speed","speed","int","v-speed"], ["s-sens","sens","int","v-sens"],
   ["s-idle","idle","int","v-idle"],
-  ["s-theme","theme","str"], ["s-decor","decor","bool"], ["s-exit","exitOn","bool"],
+  ["s-theme","theme","str"], ["s-floor","floorStyle","str"], ["s-ceil","ceilStyle","str"],
+  ["s-decor","decor","bool"], ["s-exit","exitOn","bool"],
   ["s-drift","drift","bool"], ["s-regen","regen","bool"], ["s-scan","scan","bool"],
   ["s-bob","bob","bool"], ["s-reveal","reveal","bool"], ["s-mini","mini","bool"]
 ];
-const REBUILD = new Set(["size","braid","theme","decor","wallHeight"]);
+const REBUILD = new Set(["size","braid"]);                                  // needs a new maze
+const RESTYLE = new Set(["theme","floorStyle","ceilStyle","decor","wallHeight"]); // textures only
 function syncControls(){
   for (const [id,key,kind,vid] of CONTROLS){
     const el = $(id); if (!el) continue;
@@ -1341,6 +1557,7 @@ for (const [id,key,kind,vid] of CONTROLS){
     if (vid) $(vid).textContent = opt[key];
     saveOpts();
     if (REBUILD.has(key)) newMaze(M ? M.seed : null);
+    else if (RESTYLE.has(key)) restyle();
     applyAll();
   });
 }
@@ -1515,7 +1732,10 @@ const TOOLS = [
     description:"Change how the maze looks and plays: wall style, torch range, field of view, wall height, walk speed, loop density, and the on-screen extras.",
     inputSchema:{ type:"object", properties:{
         theme:{type:"string", enum:["brick","stone","tile","circuit","hedge"], description:"Wall style"},
-        fog:{type:"integer", minimum:15, maximum:140, description:"Torch range in world units"},
+        floor:{type:"string", enum:["classic","auto","checker","concrete","carpet","marble","grate","soil"], description:"Floor style; auto follows the wall style"},
+        ceiling:{type:"string", enum:["classic","auto","panels","concrete","girders","stars","neon"], description:"Ceiling style; auto follows the wall style, stars makes the maze roofless"},
+        fog:{type:"integer", minimum:15, maximum:200, description:"How far the light reaches, in world units"},
+        lighting:{type:"string", enum:["classic","torch"], description:"classic is the original's gentle fade, torch falls off sharply"},
         fov:{type:"integer", minimum:55, maximum:105, description:"Field of view in degrees"},
         wallHeight:{type:"integer", minimum:6, maximum:20, description:"Wall height in world units"},
         speed:{type:"integer", minimum:4, maximum:40, description:"Walk speed"},
@@ -1528,17 +1748,19 @@ const TOOLS = [
         showMap:{type:"boolean", description:"Show the map panel"}
       }, additionalProperties:false },
     run: a => {
-      const map = { theme:"theme", fog:"fog", fov:"fov", wallHeight:"wallHeight", speed:"speed", braid:"braid",
+      const map = { theme:"theme", floor:"floorStyle", ceiling:"ceilStyle", lighting:"lighting",
+                    fog:"fog", fov:"fov", wallHeight:"wallHeight", speed:"speed", braid:"braid",
                     decor:"decor", drift:"drift", exitPortal:"exitOn", scanlines:"scan", revealMap:"reveal", showMap:"mini" };
       const changed = [];
-      let rebuild = false;
+      let rebuild = false, restyled = false;
       for (const k in map) if (a && a[k] !== undefined){
         opt[map[k]] = a[k]; changed.push(k);
         if (REBUILD.has(map[k])) rebuild = true;
+        else if (RESTYLE.has(map[k])) restyled = true;
       }
       if (!changed.length) throw new Error("No recognised options were given.");
       saveOpts(); syncControls(); applyAll();
-      if (rebuild) newMaze(M.seed);
+      if (rebuild) newMaze(M.seed); else if (restyled) restyle();
       return { changed, options:opt };
     } },
 
