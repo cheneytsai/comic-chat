@@ -1,0 +1,1679 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<!-- ARTIFACT:BEGIN -->
+<title>Maze 95</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap">
+
+<style>
+/* ---------------------------------------------------------------------------
+   Maze 95 — a clean-room recreation of the 1995 "3D Maze" screensaver.
+   One deliberate visual world: the Windows 95 desktop. No light/dark swap;
+   every colour is painted explicitly so the page holds on any host ground.
+   --------------------------------------------------------------------------- */
+:root{
+  /* Win95 chrome: the subject's own material palette */
+  --face:#c0c0c0;
+  --face-lit:#dfdfdf;
+  --hi:#ffffff;
+  --shadow:#808080;
+  --dark:#0a0a0a;
+  --ink:#0a0a0a;
+  --ink-dim:#4a4a4a;
+  --nav-a:#000080;      /* active title bar */
+  --nav-b:#1084d0;
+  --nav-idle-a:#7f7f7f;
+  --screen:#04050a;     /* the maze itself */
+  --torch:#ffb24a;      /* corridor light */
+  --exit:#2bff9a;       /* the way out */
+  --agent:#00e0ff;      /* agent activity */
+  --field:#ffffff;
+  --sel:#000080;
+
+  --ui: Tahoma, "Segoe UI", Verdana, Geneva, sans-serif;
+  --pix: "Silkscreen", Tahoma, sans-serif;
+  --term: "VT323", "Lucida Console", monospace;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--screen); color:var(--ink);
+  font-family:var(--ui); font-size:12px; line-height:1.45;
+  overflow:hidden; -webkit-tap-highlight-color:transparent;
+}
+
+/* ---------- the maze viewport ---------- */
+#stage{position:fixed; inset:0; background:var(--screen)}
+#gl{position:absolute; inset:0; width:100%; height:100%; display:block; cursor:crosshair}
+#vignette{
+  position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse at 50% 52%, rgba(0,0,0,0) 42%, rgba(0,0,0,.55) 100%);
+}
+#scan{
+  position:absolute; inset:0; pointer-events:none; opacity:.16;
+  background:repeating-linear-gradient(to bottom, rgba(0,0,0,.55) 0 1px, rgba(0,0,0,0) 1px 3px);
+}
+body.noscan #scan{display:none}
+
+/* ---------- Win95 bevels ---------- */
+.raise{
+  background:var(--face);
+  box-shadow:inset -1px -1px 0 var(--dark), inset 1px 1px 0 var(--hi),
+             inset -2px -2px 0 var(--shadow), inset 2px 2px 0 var(--face-lit);
+}
+.sink{
+  background:var(--face);
+  box-shadow:inset 1px 1px 0 var(--dark), inset -1px -1px 0 var(--hi),
+             inset 2px 2px 0 var(--shadow), inset -2px -2px 0 var(--face-lit);
+}
+
+/* ---------- windows ---------- */
+.win{
+  position:absolute; z-index:20; padding:3px; max-height:calc(100vh - 52px); overflow:auto;
+  background:var(--face);
+  box-shadow:inset -1px -1px 0 var(--dark), inset 1px 1px 0 var(--hi),
+             inset -2px -2px 0 var(--shadow), inset 2px 2px 0 var(--face-lit),
+             3px 3px 0 rgba(0,0,0,.45);
+  display:flex; flex-direction:column; gap:3px;
+}
+.title{
+  display:flex; align-items:center; gap:6px; padding:3px 3px 3px 5px;
+  background:linear-gradient(90deg, var(--nav-a), var(--nav-b));
+  color:#fff; font-family:var(--pix); font-size:9px; letter-spacing:.06em;
+  text-transform:uppercase; cursor:grab; user-select:none;
+}
+.win.idle .title{background:linear-gradient(90deg, var(--nav-idle-a), #b5b5b5)}
+.title:active{cursor:grabbing}
+.title .name{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.tbtn{
+  width:16px; height:14px; flex:none; border:0; padding:0;
+  font:700 11px/9px var(--ui); color:var(--ink); cursor:pointer;
+  background:var(--face);
+  box-shadow:inset -1px -1px 0 var(--dark), inset 1px 1px 0 var(--hi),
+             inset -2px -2px 0 var(--shadow), inset 2px 2px 0 var(--face-lit);
+}
+.tbtn:active{box-shadow:inset 1px 1px 0 var(--shadow), inset -1px -1px 0 var(--hi)}
+.body{padding:8px; display:flex; flex-direction:column; gap:9px}
+
+/* ---------- group boxes / fields ---------- */
+fieldset{
+  border:1px solid var(--shadow); border-right-color:var(--hi); border-bottom-color:var(--hi);
+  margin:0; padding:9px 8px 8px; position:relative;
+}
+fieldset::after{
+  content:""; position:absolute; inset:1px; border:1px solid var(--hi);
+  border-right-color:var(--shadow); border-bottom-color:var(--shadow); pointer-events:none;
+}
+legend{
+  font-family:var(--pix); font-size:8px; letter-spacing:.08em; text-transform:uppercase;
+  padding:0 4px; color:var(--ink);
+}
+.row{display:flex; align-items:center; gap:8px; justify-content:space-between}
+.row + .row{margin-top:7px}
+.row label{flex:1; min-width:0}
+.val{font-family:var(--term); font-size:15px; line-height:1; min-width:34px; text-align:right;
+     font-variant-numeric:tabular-nums; color:#202060}
+
+select, input[type=text], input[type=number]{
+  font-family:var(--ui); font-size:11px; color:var(--ink);
+  background:var(--field); border:0; padding:2px 3px; min-width:0;
+  box-shadow:inset 1px 1px 0 var(--shadow), inset -1px -1px 0 var(--hi),
+             inset 2px 2px 0 var(--dark), inset -2px -2px 0 var(--face-lit);
+}
+select:focus-visible, input:focus-visible, button:focus-visible, .chk:focus-visible{
+  outline:1px dotted var(--ink); outline-offset:1px;
+}
+
+/* pixel checkbox */
+.chk{display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none}
+.chk input{position:absolute; opacity:0; width:0; height:0}
+.box{
+  width:13px; height:13px; flex:none; background:var(--field);
+  box-shadow:inset 1px 1px 0 var(--shadow), inset -1px -1px 0 var(--hi),
+             inset 2px 2px 0 var(--dark), inset -2px -2px 0 var(--face-lit);
+  display:grid; place-items:center;
+}
+.box::after{content:""; width:7px; height:4px; margin-top:-2px;
+  border-left:2px solid var(--ink); border-bottom:2px solid var(--ink);
+  transform:rotate(-45deg) scale(0); transition:transform .08s steps(2)}
+.chk input:checked + .box::after{transform:rotate(-45deg) scale(1)}
+
+/* slider */
+input[type=range]{
+  -webkit-appearance:none; appearance:none; width:104px; height:18px; background:transparent; cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{
+  height:4px; background:var(--face);
+  box-shadow:inset 1px 1px 0 var(--shadow), inset -1px -1px 0 var(--hi), inset 2px 2px 0 var(--dark);
+}
+input[type=range]::-moz-range-track{
+  height:4px; background:var(--face);
+  box-shadow:inset 1px 1px 0 var(--shadow), inset -1px -1px 0 var(--hi), inset 2px 2px 0 var(--dark);
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:11px; height:18px; margin-top:-7px; background:var(--face);
+  box-shadow:inset -1px -1px 0 var(--dark), inset 1px 1px 0 var(--hi),
+             inset -2px -2px 0 var(--shadow), inset 2px 2px 0 var(--face-lit);
+}
+input[type=range]::-moz-range-thumb{
+  border:0; border-radius:0; width:11px; height:18px; background:var(--face);
+  box-shadow:inset -1px -1px 0 var(--dark), inset 1px 1px 0 var(--hi),
+             inset -2px -2px 0 var(--shadow), inset 2px 2px 0 var(--face-lit);
+}
+
+/* buttons */
+.btn{
+  font-family:var(--ui); font-size:11px; color:var(--ink); padding:4px 10px; border:0;
+  background:var(--face); cursor:pointer; white-space:nowrap;
+  box-shadow:inset -1px -1px 0 var(--dark), inset 1px 1px 0 var(--hi),
+             inset -2px -2px 0 var(--shadow), inset 2px 2px 0 var(--face-lit);
+}
+.btn:active,.btn[aria-pressed=true]{
+  box-shadow:inset 1px 1px 0 var(--dark), inset -1px -1px 0 var(--hi),
+             inset 2px 2px 0 var(--shadow), inset -2px -2px 0 var(--face-lit);
+  padding:5px 9px 3px 11px;
+}
+.btn[aria-pressed=true]{background:repeating-conic-gradient(var(--face-lit) 0 25%, var(--face) 0 50%) 0 0/4px 4px}
+.btns{display:flex; gap:6px; flex-wrap:wrap}
+
+/* ---------- taskbar ---------- */
+#bar{
+  position:fixed; left:0; right:0; bottom:0; z-index:40; height:34px;
+  display:flex; align-items:center; gap:5px; padding:3px 4px;
+  background:var(--face);
+  box-shadow:inset 0 1px 0 var(--hi), inset 0 2px 0 var(--face-lit);
+  padding-bottom:max(3px, env(safe-area-inset-bottom));
+  height:calc(34px + max(0px, env(safe-area-inset-bottom)));
+}
+#bar .sep{width:2px; height:20px; margin:0 2px;
+  box-shadow:inset 1px 0 0 var(--shadow), inset -1px 0 0 var(--hi)}
+#tray{
+  margin-left:auto; display:flex; align-items:center; gap:9px; padding:3px 8px;
+  font-family:var(--term); font-size:15px; letter-spacing:.02em; color:#202060;
+  box-shadow:inset 1px 1px 0 var(--shadow), inset -1px -1px 0 var(--hi);
+  font-variant-numeric:tabular-nums;
+}
+#tray .lamp{width:8px; height:8px; background:#3a3a3a; box-shadow:inset 1px 1px 0 rgba(255,255,255,.25)}
+#tray .lamp.on{background:var(--agent); box-shadow:0 0 6px var(--agent)}
+
+/* ---------- HUD ---------- */
+#hud{position:fixed; left:10px; top:10px; z-index:15; display:flex; flex-direction:column; gap:8px; pointer-events:none}
+#hud .win{position:static; pointer-events:auto}
+#mapwrap{padding:5px; background:#000;
+  box-shadow:inset 1px 1px 0 var(--shadow), inset -1px -1px 0 var(--hi), inset 2px 2px 0 var(--dark)}
+#map{display:block; image-rendering:pixelated; width:172px; height:172px}
+.readout{display:grid; grid-template-columns:auto 1fr; gap:1px 10px; align-items:baseline}
+.readout dt{font-family:var(--pix); font-size:7.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-dim)}
+.readout dd{margin:0; font-family:var(--term); font-size:16px; line-height:1.05; color:#202060; font-variant-numeric:tabular-nums}
+
+/* ---------- centre messages ---------- */
+#toast{
+  position:fixed; left:50%; top:14%; transform:translateX(-50%); z-index:45;
+  font-family:var(--pix); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:#fff; text-shadow:2px 2px 0 #000; padding:10px 16px;
+  background:rgba(0,0,32,.72); border:1px solid rgba(255,255,255,.35);
+  opacity:0; transition:opacity .25s ease; pointer-events:none; text-align:center;
+}
+#toast.show{opacity:1}
+#hint{
+  position:fixed; left:50%; bottom:52px; transform:translateX(-50%); z-index:30;
+  display:flex; align-items:center; gap:8px; padding:5px 11px;
+  font-family:var(--pix); font-size:8.5px; letter-spacing:.09em; text-transform:uppercase;
+  color:#e8e8f4; background:rgba(4,6,16,.66); border:1px solid rgba(255,255,255,.28);
+}
+#hint kbd{
+  font-family:var(--pix); font-size:8px; padding:2px 4px; color:#0a0a0a; background:var(--face);
+  box-shadow:inset -1px -1px 0 var(--dark), inset 1px 1px 0 var(--hi);
+}
+#crosshair{
+  position:fixed; left:50%; top:50%; width:3px; height:3px; margin:-1.5px 0 0 -1.5px; z-index:16;
+  background:rgba(255,210,150,.8); pointer-events:none; opacity:0; transition:opacity .2s
+}
+body.playing #crosshair{opacity:1}
+
+/* ---------- agent log ---------- */
+#log{
+  height:104px; overflow:auto; padding:5px 6px; background:#000; color:#43ff8f;
+  font-family:var(--term); font-size:14px; line-height:1.25;
+  box-shadow:inset 1px 1px 0 var(--shadow), inset -1px -1px 0 var(--hi), inset 2px 2px 0 var(--dark);
+}
+#log p{margin:0; white-space:pre-wrap; word-break:break-word}
+#log .t{color:#7a7a7a}
+#log .err{color:#ff6b6b}
+.toollist{display:flex; flex-direction:column; gap:4px; max-height:190px; overflow:auto; padding-right:2px}
+.tool{display:grid; grid-template-columns:auto 1fr; gap:2px 7px; padding:4px 5px; background:var(--face-lit);
+  box-shadow:inset -1px -1px 0 var(--shadow), inset 1px 1px 0 var(--hi)}
+.tool code{grid-column:1/-1; font-family:var(--term); font-size:15px; color:#000060; word-break:break-all}
+.tool span{grid-column:1/-1; color:var(--ink-dim); font-size:10.5px; line-height:1.35}
+.pill{
+  display:inline-block; padding:1px 5px; font-family:var(--pix); font-size:7.5px; letter-spacing:.07em;
+  text-transform:uppercase; color:#fff; background:#008000;
+}
+.pill.off{background:#8a0000}
+
+/* ---------- touch controls ---------- */
+#touch{position:fixed; inset:0 0 34px 0; z-index:18; display:none; pointer-events:none}
+body.touch #touch{display:block}
+#stick{
+  position:absolute; left:18px; bottom:18px; width:118px; height:118px; border-radius:50%;
+  background:rgba(192,192,192,.16); border:2px solid rgba(255,255,255,.35); pointer-events:auto;
+}
+#nub{position:absolute; left:50%; top:50%; width:46px; height:46px; margin:-23px 0 0 -23px; border-radius:50%;
+  background:rgba(255,178,74,.55); border:2px solid rgba(255,255,255,.6)}
+
+/* ---------- responsive ---------- */
+#panels{position:fixed; inset:0 0 34px 0; z-index:20; pointer-events:none}
+#panels .win{pointer-events:auto}
+@media (max-width:900px){
+  #hud{left:8px; top:8px}
+  #map{width:118px; height:118px}
+  .win#settings, .win#agentwin{
+    position:fixed !important; left:0 !important; right:0; top:auto !important;
+    bottom:34px; max-height:64vh; overflow:auto; width:auto;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  #toast{transition:none}
+}
+</style>
+
+<div id="stage">
+  <canvas id="gl"></canvas>
+  <div id="vignette"></div>
+  <div id="scan"></div>
+</div>
+<div id="crosshair"></div>
+
+<div id="hud">
+  <div class="win" style="position:static">
+    <div class="title" data-static><span class="name">Maze map</span></div>
+    <div class="body" style="gap:7px">
+      <div id="mapwrap"><canvas id="map" width="172" height="172"></canvas></div>
+      <dl class="readout">
+        <dt>Cell</dt><dd id="r-cell">--,--</dd>
+        <dt>Facing</dt><dd id="r-face">N</dd>
+        <dt>Driver</dt><dd id="r-mode">screensaver</dd>
+        <dt>Elapsed</dt><dd id="r-time">0:00</dd>
+        <dt>Seed</dt><dd id="r-seed">--------</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<div id="panels">
+  <!-- Settings: modelled on the Win95 Display Properties dialog -->
+  <div class="win" id="settings" style="right:14px; top:14px; width:296px">
+    <div class="title"><span class="name">Maze properties</span><button class="tbtn" data-close="settings" title="Close">&times;</button></div>
+    <div class="body">
+      <fieldset>
+        <legend>Maze</legend>
+        <div class="row"><label for="s-size">Grid size</label><span class="val" id="v-size">14</span><input type="range" id="s-size" min="6" max="32" step="2" value="14"></div>
+        <div class="row"><label for="s-braid">Loops (dead ends removed)</label><span class="val" id="v-braid">15</span><input type="range" id="s-braid" min="0" max="100" step="5" value="15"></div>
+        <div class="row"><label for="s-theme">Wall style</label>
+          <select id="s-theme">
+            <option value="brick">Red brick (1995)</option>
+            <option value="stone">Cut stone</option>
+            <option value="tile">Corporate tile</option>
+            <option value="circuit">Circuit board</option>
+            <option value="hedge">Hedgerow</option>
+          </select>
+        </div>
+        <div class="row"><label class="chk"><input type="checkbox" id="s-decor" checked><span class="box"></span>Wall plaques</label>
+          <label class="chk"><input type="checkbox" id="s-exit" checked><span class="box"></span>Exit portal</label></div>
+        <div class="row"><label class="chk"><input type="checkbox" id="s-drift" checked><span class="box"></span>Drifting polyhedra</label>
+          <label class="chk"><input type="checkbox" id="s-regen" checked><span class="box"></span>New maze at exit</label></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Display</legend>
+        <div class="row"><label for="s-fog">Torch range</label><span class="val" id="v-fog">55</span><input type="range" id="s-fog" min="15" max="140" step="5" value="55"></div>
+        <div class="row"><label for="s-fov">Field of view</label><span class="val" id="v-fov">75</span><input type="range" id="s-fov" min="55" max="105" step="1" value="75"></div>
+        <div class="row"><label for="s-wall">Wall height</label><span class="val" id="v-wall">10</span><input type="range" id="s-wall" min="6" max="20" step="1" value="10"></div>
+        <div class="row"><label for="s-res">Render scale</label><span class="val" id="v-res">100</span><input type="range" id="s-res" min="35" max="100" step="5" value="100"></div>
+        <div class="row"><label class="chk"><input type="checkbox" id="s-scan" checked><span class="box"></span>CRT scanlines</label>
+          <label class="chk"><input type="checkbox" id="s-bob" checked><span class="box"></span>Head bob</label></div>
+        <div class="row"><label class="chk"><input type="checkbox" id="s-reveal"><span class="box"></span>Reveal whole map</label>
+          <label class="chk"><input type="checkbox" id="s-mini" checked><span class="box"></span>Show map panel</label></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Movement</legend>
+        <div class="row"><label for="s-speed">Walk speed</label><span class="val" id="v-speed">14</span><input type="range" id="s-speed" min="4" max="40" step="1" value="14"></div>
+        <div class="row"><label for="s-sens">Mouse look</label><span class="val" id="v-sens">10</span><input type="range" id="s-sens" min="2" max="30" step="1" value="10"></div>
+        <div class="row"><label for="s-idle">Screensaver resumes after</label><span class="val" id="v-idle">12</span><input type="range" id="s-idle" min="0" max="60" step="2" value="12"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>This maze</legend>
+        <div class="row"><label for="s-seed">Seed</label><input type="text" id="s-seed" size="10" spellcheck="false" autocomplete="off" style="width:96px"></div>
+        <div class="btns" style="margin-top:8px">
+          <button class="btn" id="b-regen2">New maze</button>
+          <button class="btn" id="b-replay">Restart this one</button>
+          <button class="btn" id="b-reset">Defaults</button>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+
+  <!-- Agent window: what a browser agent can actually do here -->
+  <div class="win idle" id="agentwin" hidden style="right:14px; top:14px; width:330px">
+    <div class="title"><span class="name">Agent tools (WebMCP)</span><button class="tbtn" data-close="agentwin" title="Close">&times;</button></div>
+    <div class="body">
+      <div class="row" style="gap:6px">
+        <span id="mcp-state" class="pill off">navigator.modelContext: absent</span>
+        <button class="btn" id="b-copytools" style="margin-left:auto">Copy tool JSON</button>
+      </div>
+      <fieldset>
+        <legend>Registered tools</legend>
+        <div class="toollist" id="tools"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Call log</legend>
+        <div id="log" aria-live="polite"></div>
+      </fieldset>
+    </div>
+  </div>
+</div>
+
+<div id="touch"><div id="stick"><div id="nub"></div></div></div>
+
+<div id="hint"><kbd>Click</kbd> to take control &nbsp;&middot;&nbsp; <kbd>W A S D</kbd> move &nbsp;&middot;&nbsp; <kbd>Esc</kbd> hand it back</div>
+<div id="toast" role="status"></div>
+
+<div id="bar">
+  <button class="btn" id="b-regen" style="font-weight:700">New maze</button>
+  <button class="btn" id="b-auto" aria-pressed="true">Screensaver</button>
+  <div class="sep"></div>
+  <button class="btn" id="b-settings" aria-pressed="true">Properties</button>
+  <button class="btn" id="b-agent" aria-pressed="false">Agent tools</button>
+  <button class="btn" id="b-full">Full screen</button>
+  <div id="tray">
+    <span class="lamp" id="lamp" title="Agent activity"></span>
+    <span id="t-fps">60 FPS</span>
+    <span id="t-clock">--:--</span>
+  </div>
+</div>
+
+
+<script>
+/* ===========================================================================
+   Maze 95 — clean-room recreation of the Windows 95 "3D Maze" screensaver.
+   No libraries: maze generation, textures, and the WebGL renderer are all
+   built here. Four jobs: play it, tune it, reseed it, and let an agent drive.
+   =========================================================================== */
+(() => {
+"use strict";
+
+const CELL = 10;                 // world units per maze cell
+const EYE  = 5.0;                // eye height
+const RAD  = 2.2;                // collision radius
+const DIRS = [[0,-1],[1,0],[0,1],[-1,0]];   // N E S W
+const DIRNAME = ["north","east","south","west"];
+const clamp = (v,a,b) => v<a?a:v>b?b:v;
+const lerp  = (a,b,t) => a+(b-a)*t;
+const TAU = Math.PI*2;
+
+/* ---------- seeded RNG (mulberry32) ---------- */
+function hashSeed(str){
+  let h = 2166136261 >>> 0;
+  for (let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function rng(seed){
+  let a = seed >>> 0;
+  return () => { a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+const newSeedText = () => Math.floor(Math.random()*0xFFFFFFFF).toString(36).toUpperCase().padStart(6,"0").slice(0,7);
+
+/* ===========================  MAZE  ======================================= */
+/* hw[z*W+x] : wall on the north edge of cell (x,z),  z in 0..H
+   vw[z*(W+1)+x] : wall on the west edge of cell (x,z), x in 0..W          */
+function buildMaze(W,H,seedText,braidPct){
+  const r = rng(hashSeed(seedText));
+  const hw = new Uint8Array((H+1)*W).fill(1);
+  const vw = new Uint8Array(H*(W+1)).fill(1);
+  const seen = new Uint8Array(W*H);
+  const hwi = (x,z) => z*W+x, vwi = (x,z) => z*(W+1)+x;
+  const carve = (x,z,d) => { if(d===0) hw[hwi(x,z)]=0; else if(d===2) hw[hwi(x,z+1)]=0;
+                             else if(d===3) vw[vwi(x,z)]=0; else vw[vwi(x+1,z)]=0; };
+  const wallAt = (x,z,d) => d===0 ? hw[hwi(x,z)] : d===2 ? hw[hwi(x,z+1)]
+                          : d===3 ? vw[vwi(x,z)] : vw[vwi(x+1,z)];
+
+  // recursive backtracker — the classic "perfect maze" the screensaver used
+  const sx = Math.floor(r()*W), sz = Math.floor(r()*H);
+  const stack = [[sx,sz]]; seen[sz*W+sx] = 1;
+  while (stack.length){
+    const [x,z] = stack[stack.length-1];
+    const open = [];
+    for (let d=0; d<4; d++){
+      const nx = x+DIRS[d][0], nz = z+DIRS[d][1];
+      if (nx>=0 && nx<W && nz>=0 && nz<H && !seen[nz*W+nx]) open.push(d);
+    }
+    if (!open.length){ stack.pop(); continue; }
+    const d = open[Math.floor(r()*open.length)];
+    const nx = x+DIRS[d][0], nz = z+DIRS[d][1];
+    carve(x,z,d); seen[nz*W+nx] = 1; stack.push([nx,nz]);
+  }
+
+  // braid: knock out a share of dead ends so corridors loop (0% = perfect maze)
+  if (braidPct > 0){
+    for (let z=0; z<H; z++) for (let x=0; x<W; x++){
+      const walls = [0,1,2,3].filter(d => wallAt(x,z,d));
+      if (walls.length === 3 && r()*100 < braidPct){
+        const cand = walls.filter(d => { const nx=x+DIRS[d][0], nz=z+DIRS[d][1];
+          return nx>=0 && nx<W && nz>=0 && nz<H; });
+        if (cand.length) carve(x,z,cand[Math.floor(r()*cand.length)]);
+      }
+    }
+  }
+
+  const M = { W,H,hw,vw,seed:seedText,
+    wall:(x,z,d)=>{ if(x<0||z<0||x>=W||z>=H) return 1; return wallAt(x,z,d); },
+    idx:(x,z)=>z*W+x };
+
+  // start & exit: the two cells furthest apart that we can find cheaply
+  const far = (from) => {
+    const dist = new Int32Array(W*H).fill(-1); const q=[from]; dist[from[1]*W+from[0]]=0;
+    let best = from, bd = 0;
+    for (let i=0;i<q.length;i++){
+      const [x,z] = q[i], d0 = dist[z*W+x];
+      if (d0 > bd){ bd = d0; best = [x,z]; }
+      for (let d=0; d<4; d++){
+        if (M.wall(x,z,d)) continue;
+        const nx=x+DIRS[d][0], nz=z+DIRS[d][1];
+        if (nx<0||nz<0||nx>=W||nz>=H) continue;
+        if (dist[nz*W+nx] !== -1) continue;
+        dist[nz*W+nx] = d0+1; q.push([nx,nz]);
+      }
+    }
+    return {cell:best, dist};
+  };
+  const a = far([sx,sz]), b = far(a.cell);
+  M.start = a.cell; M.exit = b.cell; M.longest = b.dist[b.cell[1]*W+b.cell[0]];
+  M.rand = r;
+  return M;
+}
+
+/* breadth-first path between two cells, inclusive of both ends */
+function findPath(M, from, to){
+  const {W,H} = M;
+  const prev = new Int32Array(W*H).fill(-2);
+  const q = [from[1]*W+from[0]]; prev[q[0]] = -1;
+  for (let i=0;i<q.length;i++){
+    const c = q[i], x = c%W, z = (c-x)/W;
+    if (x===to[0] && z===to[1]) break;
+    for (let d=0; d<4; d++){
+      if (M.wall(x,z,d)) continue;
+      const nx=x+DIRS[d][0], nz=z+DIRS[d][1];
+      if (nx<0||nz<0||nx>=W||nz>=H) continue;
+      const n = nz*W+nx;
+      if (prev[n] !== -2) continue;
+      prev[n] = c; q.push(n);
+    }
+  }
+  const end = to[1]*W+to[0];
+  if (prev[end] === -2) return null;
+  const path = []; let c = end;
+  while (c !== -1){ path.push([c%W, (c-(c%W))/W]); c = prev[c]; }
+  return path.reverse();
+}
+
+/* =========================  TEXTURES  ==================================== */
+/* Everything is drawn here — no external image assets, nothing borrowed. */
+function noise(ctx,s,amount,alpha){
+  const img = ctx.getImageData(0,0,s,s), d = img.data;
+  for (let i=0;i<d.length;i+=4){
+    const n = (Math.random()-0.5)*amount;
+    d[i]=clamp(d[i]+n,0,255); d[i+1]=clamp(d[i+1]+n,0,255); d[i+2]=clamp(d[i+2]+n,0,255);
+    if (alpha!==undefined) d[i+3]=alpha;
+  }
+  ctx.putImageData(img,0,0);
+}
+function cv(s){ const c=document.createElement("canvas"); c.width=c.height=s; return c; }
+
+const THEMES = {
+  brick:{
+    fog:"#04050a", floor:"#5e5a55", ceil:"#413c39", accent:"#ffb24a",
+    wall(x){ const s=128,c=cv(s),g=c.getContext("2d");
+      g.fillStyle="#2a2020"; g.fillRect(0,0,s,s);
+      const rows=8, bh=s/rows;
+      for(let r=0;r<rows;r++){
+        const off=(r%2)?bh*1.0:0;
+        for(let i=-1;i<5;i++){
+          const bx=off+i*(s/4)+1.5, by=r*bh+1.5, bw=s/4-3, bhh=bh-3;
+          const t=Math.random()*26-13;
+          g.fillStyle=`rgb(${clamp(138+t,0,255)|0},${clamp(64+t*0.7,0,255)|0},${clamp(46+t*0.6,0,255)|0})`;
+          g.fillRect(bx,by,bw,bhh);
+          g.fillStyle="rgba(255,255,255,.10)"; g.fillRect(bx,by,bw,1.5);
+          g.fillStyle="rgba(0,0,0,.28)"; g.fillRect(bx,by+bhh-1.5,bw,1.5);
+        }
+      }
+      noise(g,s,26); return c; }
+  },
+  stone:{
+    fog:"#05060b", floor:"#63636c", ceil:"#44444d", accent:"#cfd6e6",
+    wall(){ const s=128,c=cv(s),g=c.getContext("2d");
+      g.fillStyle="#3c3c44"; g.fillRect(0,0,s,s);
+      for(let r=0;r<4;r++) for(let i=0;i<3;i++){
+        const bx=i*(s/3)+((r%2)?s/6:0)-2, by=r*(s/4);
+        const t=Math.random()*22-11, v=clamp(122+t,0,255)|0;
+        g.fillStyle=`rgb(${v},${v+3},${(v+10)|0})`;
+        g.fillRect(bx+2,by+2,s/3-4,s/4-4);
+        g.strokeStyle="rgba(0,0,0,.35)"; g.lineWidth=2; g.strokeRect(bx+2,by+2,s/3-4,s/4-4);
+      }
+      noise(g,s,30); return c; }
+  },
+  tile:{
+    fog:"#0a0b10", floor:"#7b7b82", ceil:"#585860", accent:"#8fd3ff",
+    wall(){ const s=128,c=cv(s),g=c.getContext("2d");
+      g.fillStyle="#b9b6ad"; g.fillRect(0,0,s,s);
+      for(let r=0;r<4;r++) for(let i=0;i<4;i++){
+        const t=Math.random()*14-7, v=clamp(196+t,0,255)|0;
+        g.fillStyle=`rgb(${v},${(v-4)|0},${(v-16)|0})`;
+        g.fillRect(i*32+2,r*32+2,28,28);
+      }
+      g.strokeStyle="rgba(90,88,80,.55)"; g.lineWidth=2;
+      for(let i=0;i<=4;i++){ g.beginPath(); g.moveTo(i*32,0); g.lineTo(i*32,s); g.moveTo(0,i*32); g.lineTo(s,i*32); g.stroke(); }
+      noise(g,s,12); return c; }
+  },
+  circuit:{
+    fog:"#000a08", floor:"#2b5a4e", ceil:"#1c3a33", accent:"#4dffc3",
+    wall(){ const s=128,c=cv(s),g=c.getContext("2d");
+      g.fillStyle="#0d3d2e"; g.fillRect(0,0,s,s);
+      g.strokeStyle="#3ad9a0"; g.lineWidth=2; g.lineCap="square";
+      for(let i=0;i<16;i++){
+        let x=Math.floor(Math.random()*8)*16, y=Math.floor(Math.random()*8)*16;
+        g.beginPath(); g.moveTo(x,y);
+        for(let k=0;k<3;k++){ if(Math.random()<0.5) x+=(Math.random()<0.5?16:-16); else y+=(Math.random()<0.5?16:-16); g.lineTo(x,y); }
+        g.stroke();
+        g.fillStyle="#ffd166"; g.fillRect(x-3,y-3,6,6);
+      }
+      noise(g,s,16); return c; }
+  },
+  hedge:{
+    fog:"#04120a", floor:"#6d5636", ceil:"#17301d", accent:"#b8ff7a",
+    wall(){ const s=128,c=cv(s),g=c.getContext("2d");
+      g.fillStyle="#1d3a17"; g.fillRect(0,0,s,s);
+      for(let i=0;i<900;i++){
+        const x=Math.random()*s, y=Math.random()*s, r=2+Math.random()*4;
+        const v=Math.random(); g.fillStyle=`rgba(${(52+v*70)|0},${(96+v*90)|0},${(38+v*40)|0},.85)`;
+        g.beginPath(); g.ellipse(x,y,r,r*0.7,Math.random()*TAU,0,TAU); g.fill();
+      }
+      noise(g,s,18); return c; }
+  }
+};
+
+function floorTex(theme){
+  const s=128,c=cv(s),g=c.getContext("2d");
+  g.fillStyle=theme.floor; g.fillRect(0,0,s,s);
+  g.fillStyle="rgba(0,0,0,.22)";
+  for(let r=0;r<4;r++) for(let i=0;i<4;i++) if((r+i)%2) g.fillRect(i*32,r*32,32,32);
+  g.strokeStyle="rgba(0,0,0,.35)"; g.lineWidth=2;
+  for(let i=0;i<=4;i++){ g.beginPath(); g.moveTo(i*32,0); g.lineTo(i*32,s); g.moveTo(0,i*32); g.lineTo(s,i*32); g.stroke(); }
+  noise(g,s,20); return c;
+}
+function ceilTex(theme){
+  const s=128,c=cv(s),g=c.getContext("2d");
+  g.fillStyle=theme.ceil; g.fillRect(0,0,s,s);
+  g.fillStyle="rgba(255,255,255,.05)";
+  for(let i=0;i<3;i++) g.fillRect(0, 20+i*40, s, 5);
+  noise(g,s,16); return c;
+}
+/* four plaques in a 2x2 atlas — the wall art that breaks up the corridors */
+function decorTex(theme){
+  const s=256,c=cv(s),g=c.getContext("2d"); const q=128;
+  const plate=(ox,oy)=>{ g.fillStyle="#c0c0c0"; g.fillRect(ox+8,oy+8,q-16,q-16);
+    g.fillStyle="#ffffff"; g.fillRect(ox+8,oy+8,q-16,3); g.fillRect(ox+8,oy+8,3,q-16);
+    g.fillStyle="#606060"; g.fillRect(ox+8,oy+q-11,q-16,3); g.fillRect(ox+q-11,oy+8,3,q-16); };
+  g.clearRect(0,0,s,s);
+  // 1 — "95" enamel plate
+  plate(0,0); g.fillStyle="#000080"; g.fillRect(16,16,96,96);
+  g.fillStyle="#fff"; g.font="700 62px Tahoma, sans-serif"; g.textAlign="center"; g.textBaseline="middle";
+  g.fillText("95",64,68);
+  // 2 — labyrinth glyph
+  plate(128,0); g.fillStyle="#1a1a1a"; g.fillRect(144,16,96,96);
+  g.strokeStyle=theme.accent; g.lineWidth=6; g.lineJoin="miter";
+  g.beginPath(); g.moveTo(160,100); g.lineTo(160,32); g.lineTo(224,32); g.lineTo(224,100);
+  g.lineTo(178,100); g.lineTo(178,50); g.lineTo(206,50); g.lineTo(206,84); g.stroke();
+  // 3 — sconce / torch
+  plate(0,128); g.fillStyle="#101014"; g.fillRect(16,144,96,96);
+  const grd=g.createRadialGradient(64,196,4,64,196,52);
+  grd.addColorStop(0,"#fff3c4"); grd.addColorStop(.35,"#ffb24a"); grd.addColorStop(1,"rgba(255,120,20,0)");
+  g.fillStyle=grd; g.fillRect(16,144,96,96);
+  g.fillStyle="#5a4632"; g.fillRect(58,200,12,34);
+  // 4 — exit sign
+  plate(128,128); g.fillStyle="#00381f"; g.fillRect(144,144,96,96);
+  g.fillStyle="#2bff9a"; g.font="700 30px Tahoma, sans-serif";
+  g.fillText("EXIT",192,182); g.font="700 15px Tahoma, sans-serif"; g.fillText("→",192,212);
+  return c;
+}
+
+/* ==========================  WEBGL  ====================================== */
+const canvas = document.getElementById("gl");
+const gl = canvas.getContext("webgl", {antialias:true, alpha:false, powerPreference:"high-performance"});
+if (!gl){
+  document.getElementById("stage").innerHTML =
+    '<p style="color:#e8e8f4;font:14px Tahoma,sans-serif;padding:28px;max-width:44ch">' +
+    'This browser has no WebGL, so the maze can’t be drawn. Enable hardware acceleration and reload.</p>';
+  return;
+}
+
+const VS = `
+attribute vec3 aPos; attribute vec2 aUV; attribute vec3 aCol;
+uniform mat4 uProj, uView;
+varying vec2 vUV; varying vec3 vCol; varying float vDist;
+void main(){
+  vec4 p = uView * vec4(aPos,1.0);
+  vDist = length(p.xyz);
+  vUV = aUV; vCol = aCol;
+  gl_Position = uProj * p;
+}`;
+const FS = `
+precision mediump float;
+uniform sampler2D uTex; uniform vec3 uFog; uniform float uNear, uFar, uAlpha;
+varying vec2 vUV; varying vec3 vCol; varying float vDist;
+void main(){
+  vec4 t = texture2D(uTex, vUV);
+  float f = clamp((vDist - uNear) / max(uFar - uNear, 0.001), 0.0, 1.0);
+  f = f * f;                                   // torch falls off fast, like the original
+  vec3 c = mix(t.rgb * vCol, uFog, f);
+  float a = t.a * uAlpha;
+  if (a < 0.02) discard;
+  gl_FragColor = vec4(c, a);
+}`;
+function compile(type,src){
+  const s = gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog); gl.useProgram(prog);
+const A = { pos:gl.getAttribLocation(prog,"aPos"), uv:gl.getAttribLocation(prog,"aUV"), col:gl.getAttribLocation(prog,"aCol") };
+const U = { proj:gl.getUniformLocation(prog,"uProj"), view:gl.getUniformLocation(prog,"uView"),
+            tex:gl.getUniformLocation(prog,"uTex"), fog:gl.getUniformLocation(prog,"uFog"),
+            near:gl.getUniformLocation(prog,"uNear"), far:gl.getUniformLocation(prog,"uFar"),
+            alpha:gl.getUniformLocation(prog,"uAlpha") };
+gl.enableVertexAttribArray(A.pos); gl.enableVertexAttribArray(A.uv); gl.enableVertexAttribArray(A.col);
+gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
+gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+const STRIDE = 8 * 4;
+function bindLayout(){
+  gl.vertexAttribPointer(A.pos,3,gl.FLOAT,false,STRIDE,0);
+  gl.vertexAttribPointer(A.uv ,2,gl.FLOAT,false,STRIDE,12);
+  gl.vertexAttribPointer(A.col,3,gl.FLOAT,false,STRIDE,20);
+}
+function texFromCanvas(c, mip){
+  const t = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S, mip?gl.REPEAT:gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T, mip?gl.REPEAT:gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  if (mip){ gl.generateMipmap(gl.TEXTURE_2D); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR); }
+  else gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  return t;
+}
+const whiteTex = (() => { const c = cv(2); const g=c.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,2,2); return texFromCanvas(c,false); })();
+
+/* ---------- 4x4 matrices (column-major, like GL wants them) ---------- */
+function mul(a,b){
+  const o = new Float32Array(16);
+  for (let c=0;c<4;c++) for (let r=0;r<4;r++)
+    o[c*4+r] = a[r]*b[c*4] + a[4+r]*b[c*4+1] + a[8+r]*b[c*4+2] + a[12+r]*b[c*4+3];
+  return o;
+}
+function perspective(fovDeg, aspect, near, far){
+  const f = 1/Math.tan(fovDeg*Math.PI/360), nf = 1/(near-far);
+  return new Float32Array([f/aspect,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,2*far*near*nf,0]);
+}
+function viewMatrix(px,py,pz,yaw,pitch){
+  const cy=Math.cos(-yaw), sy=Math.sin(-yaw), cp=Math.cos(-pitch), sp=Math.sin(-pitch);
+  const Ry = new Float32Array([cy,0,-sy,0, 0,1,0,0, sy,0,cy,0, 0,0,0,1]);
+  const Rx = new Float32Array([1,0,0,0, 0,cp,-sp,0, 0,sp,cp,0, 0,0,0,1]);
+  const T  = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, -px,-py,-pz,1]);
+  return mul(Rx, mul(Ry, T));
+}
+
+/* ---------- mesh building ---------- */
+class Mesh {
+  constructor(tex){ this.tex=tex; this.v=[]; this.buf=gl.createBuffer(); this.count=0; }
+  quad(p0,p1,p2,p3,u0,v0,u1,v1,b){          // counter-clockwise when seen from the front
+    const [r,g_,bl] = Array.isArray(b) ? b : [b,b,b];
+    const push=(p,u,v)=>{ this.v.push(p[0],p[1],p[2],u,v,r,g_,bl); };
+    push(p0,u0,v0); push(p1,u1,v0); push(p2,u1,v1);
+    push(p0,u0,v0); push(p2,u1,v1); push(p3,u0,v1);
+  }
+  tri(p0,p1,p2,c){ const [r,g_,b]=c;
+    this.v.push(p0[0],p0[1],p0[2],0.5,0.5,r,g_,b, p1[0],p1[1],p1[2],0.5,0.5,r,g_,b, p2[0],p2[1],p2[2],0.5,0.5,r,g_,b); }
+  upload(dynamic){
+    gl.bindBuffer(gl.ARRAY_BUFFER,this.buf);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(this.v), dynamic?gl.DYNAMIC_DRAW:gl.STATIC_DRAW);
+    this.count = this.v.length/8;
+  }
+  draw(alpha){
+    if (!this.count) return;
+    gl.bindBuffer(gl.ARRAY_BUFFER,this.buf); bindLayout();
+    gl.bindTexture(gl.TEXTURE_2D,this.tex);
+    gl.uniform1f(U.alpha, alpha===undefined?1:alpha);
+    gl.drawArrays(gl.TRIANGLES,0,this.count);
+  }
+}
+
+/* face brightness: gives flat geometry a sense of direction without a light pass */
+const B_NS = 1.00, B_EW = 0.76, B_FLOOR = 0.84, B_CEIL = 0.62;
+
+function buildScene(M, opt, tex){
+  const {W,H} = M, hgt = opt.wallHeight, rr = rng(hashSeed(M.seed+"decor"));
+  const walls = new Mesh(tex.wall), floor = new Mesh(tex.floor),
+        ceil  = new Mesh(tex.ceil), decor = new Mesh(tex.decor);
+  const TILE = 2, uv = TILE * hgt / CELL;     // two courses per cell, square on tall walls
+
+  // floor + ceiling as two big tiled quads
+  const wx = W*CELL, wz = H*CELL;
+  floor.quad([0,0,wz],[wx,0,wz],[wx,0,0],[0,0,0], 0,0,W,H, B_FLOOR);
+  ceil .quad([0,hgt,0],[wx,hgt,0],[wx,hgt,wz],[0,hgt,wz], 0,0,W,H, B_CEIL);
+
+  const plaque = (x0,z0,x1,z1,ny) => {        // a decor quad floated just off a wall face
+    const t = Math.floor(rr()*4), u0=(t%2)*0.5, v0=(t<2?0:0.5);
+    const e = 0.06, my = hgt*0.5;
+    const dx = (x1-x0), dz = (z1-z0), len = Math.hypot(dx,dz);
+    const ux = dx/len, uz = dz/len, size = Math.min(CELL*0.42, hgt*0.42);
+    const cx = (x0+x1)/2 + ny[0]*e, cz = (z0+z1)/2 + ny[1]*e;
+    const a = [cx-ux*size, my-size, cz-uz*size], b = [cx+ux*size, my-size, cz+uz*size];
+    const c = [cx+ux*size, my+size, cz+uz*size], d = [cx-ux*size, my+size, cz-uz*size];
+    decor.quad(d,c,b,a, u0,v0, u0+0.5,v0+0.5, 1.05);
+  };
+
+  // one quad per wall face that a player can actually see
+  for (let z=0; z<=H; z++) for (let x=0; x<W; x++){
+    if (!M.hw[z*W+x]) continue;
+    const X0=x*CELL, X1=(x+1)*CELL, Z=z*CELL;
+    if (z<H) walls.quad([X0,0,Z],[X1,0,Z],[X1,hgt,Z],[X0,hgt,Z], 0,0,TILE,uv, B_NS);   // faces +z
+    if (z>0) walls.quad([X1,0,Z],[X0,0,Z],[X0,hgt,Z],[X1,hgt,Z], 0,0,TILE,uv, B_NS);   // faces -z
+    if (opt.decor && rr() < 0.055){
+      if (z<H) plaque(X0,Z,X1,Z,[0,1]); else plaque(X1,Z,X0,Z,[0,-1]);
+    }
+  }
+  for (let z=0; z<H; z++) for (let x=0; x<=W; x++){
+    if (!M.vw[z*(W+1)+x]) continue;
+    const X=x*CELL, Z0=z*CELL, Z1=(z+1)*CELL;
+    if (x<W) walls.quad([X,0,Z1],[X,0,Z0],[X,hgt,Z0],[X,hgt,Z1], 0,0,TILE,uv, B_EW);   // faces +x
+    if (x>0) walls.quad([X,0,Z0],[X,0,Z1],[X,hgt,Z1],[X,hgt,Z0], 0,0,TILE,uv, B_EW);   // faces -x
+    if (opt.decor && rr() < 0.055){
+      if (x<W) plaque(X,Z1,X,Z0,[1,0]); else plaque(X,Z0,X,Z1,[-1,0]);
+    }
+  }
+  walls.upload(); floor.upload(); ceil.upload(); decor.upload();
+  return {walls, floor, ceil, decor};
+}
+
+/* the exit: a pulsing column of light you can see down a corridor */
+function buildPortal(M, hgt){
+  const m = new Mesh(whiteTex);
+  const cx = (M.exit[0]+0.5)*CELL, cz = (M.exit[1]+0.5)*CELL, s = CELL*0.3;
+  const c = [0.17,1.0,0.6];
+  for (const ang of [0, Math.PI/2]){
+    const ux=Math.cos(ang)*s, uz=Math.sin(ang)*s;
+    m.quad([cx-ux,0.2,cz-uz],[cx+ux,0.2,cz+uz],[cx+ux,hgt-0.2,cz+uz],[cx-ux,hgt-0.2,cz-uz],0,0,1,1,c);
+    m.quad([cx+ux,0.2,cz+uz],[cx-ux,0.2,cz-uz],[cx-ux,hgt-0.2,cz-uz],[cx+ux,hgt-0.2,cz+uz],0,0,1,1,c);
+  }
+  m.upload();
+  return m;
+}
+
+/* drifting polyhedra — the screensaver's floating shapes, rebuilt each frame */
+const SHAPES = (() => {
+  const oct = [[0,1,0],[1,0,0],[0,0,1],[0,1,0],[0,0,1],[-1,0,0],[0,1,0],[-1,0,0],[0,0,-1],[0,1,0],[0,0,-1],[1,0,0],
+               [0,-1,0],[0,0,1],[1,0,0],[0,-1,0],[-1,0,0],[0,0,1],[0,-1,0],[0,0,-1],[-1,0,0],[0,-1,0],[1,0,0],[0,0,-1]];
+  const tet = [[0,1,0],[-0.94,-0.33,-0.54],[0.94,-0.33,-0.54],[0,1,0],[0.94,-0.33,-0.54],[0,-0.33,1.08],
+               [0,1,0],[0,-0.33,1.08],[-0.94,-0.33,-0.54],[-0.94,-0.33,-0.54],[0,-0.33,1.08],[0.94,-0.33,-0.54]];
+  return [oct, tet];
+})();
+
+/* =========================  STATE  ======================================= */
+const DEFAULTS = {
+  size:14, braid:15, theme:"brick", decor:true, exitOn:true, drift:true, regen:true,
+  fog:55, fov:75, wallHeight:10, res:100, scan:true, bob:true, reveal:false, mini:true,
+  speed:14, sens:10, idle:12
+};
+let opt = Object.assign({}, DEFAULTS);
+try {
+  const saved = JSON.parse(localStorage.getItem("maze95.settings") || "null");
+  if (saved && typeof saved === "object") opt = Object.assign(opt, saved);
+} catch (e) { /* private mode, blocked storage — defaults are fine */ }
+const saveOpts = () => { try { localStorage.setItem("maze95.settings", JSON.stringify(opt)); } catch(e){} };
+
+let M, scene, portal, drifters = [], visited, theme, tex;
+let cam = { x:0, y:EYE, z:0, yaw:0, pitch:0, bob:0 };
+let mode = "auto";                 // auto | human | agent
+let solved = false, startedAt = 0, elapsedFrozen = 0;
+let lastInput = 0, agentBusy = null;
+const keys = new Set();
+const driftMesh = new Mesh(whiteTex);
+
+function cellOf(px,pz){ return [clamp(Math.floor(px/CELL),0,M.W-1), clamp(Math.floor(pz/CELL),0,M.H-1)]; }
+function facing(){ return ((Math.round(cam.yaw / (Math.PI/2)) % 4) + 4) % 4; }
+const compass = () => DIRNAME[facing()];
+
+function newMaze(seedText, keepPos){
+  const S = clamp(opt.size|0, 6, 32);
+  M = buildMaze(S, S, seedText || newSeedText(), opt.braid);
+  theme = THEMES[opt.theme] || THEMES.brick;
+  tex = {
+    wall: texFromCanvas(theme.wall(), true),
+    floor: texFromCanvas(floorTex(theme), true),
+    ceil: texFromCanvas(ceilTex(theme), true),
+    decor: texFromCanvas(decorTex(theme), false)
+  };
+  scene = buildScene(M, opt, tex);
+  portal = buildPortal(M, opt.wallHeight);
+  visited = new Uint8Array(M.W*M.H);
+  cam.x = (M.start[0]+0.5)*CELL; cam.z = (M.start[1]+0.5)*CELL;
+  cam.y = EYE; cam.pitch = 0;
+  // face the first open direction, the way the screensaver always started
+  for (let d=0; d<4; d++) if (!M.wall(M.start[0],M.start[1],d)){ cam.yaw = -d*Math.PI/2; break; }
+  visited[M.idx(M.start[0],M.start[1])] = 1;
+  drifters = [];
+  const r = rng(hashSeed(M.seed+"drift"));
+  for (let i=0;i<6;i++){
+    const c = [Math.floor(r()*M.W), Math.floor(r()*M.H)];
+    drifters.push({ x:(c[0]+0.5)*CELL, z:(c[1]+0.5)*CELL, y:opt.wallHeight*0.5,
+      dir:Math.floor(r()*4), t:r(), spin:r()*TAU, shape:i%2,
+      col:[0.35+r()*0.65, 0.35+r()*0.65, 0.45+r()*0.55] });
+  }
+  nav = null; auto = { turning:0, from:0, to:0, moving:0, fx:cam.x, fz:cam.z, tx:cam.x, tz:cam.z, dir:facing() };
+  solved = false; startedAt = performance.now(); elapsedFrozen = 0;
+  document.getElementById("r-seed").textContent = M.seed;
+  document.getElementById("s-seed").value = M.seed;
+  drawMap();
+}
+
+/* ---------- collision: slide along walls instead of sticking to them ------ */
+function blocked(px,pz){
+  const [cx,cz] = cellOf(px,pz);
+  for (let z=cz-1; z<=cz+1; z++) for (let x=cx-1; x<=cx+1; x++){
+    if (x<0||z<0||x>=M.W||z>=M.H) continue;
+    for (let d=0; d<4; d++){
+      if (!M.wall(x,z,d)) continue;
+      let ax,az,bx,bz;
+      if (d===0){ ax=x*CELL; az=z*CELL; bx=(x+1)*CELL; bz=z*CELL; }
+      else if (d===2){ ax=x*CELL; az=(z+1)*CELL; bx=(x+1)*CELL; bz=(z+1)*CELL; }
+      else if (d===3){ ax=x*CELL; az=z*CELL; bx=x*CELL; bz=(z+1)*CELL; }
+      else { ax=(x+1)*CELL; az=z*CELL; bx=(x+1)*CELL; bz=(z+1)*CELL; }
+      const dx=bx-ax, dz=bz-az, L2=dx*dx+dz*dz;
+      let t = ((px-ax)*dx + (pz-az)*dz)/L2; t = clamp(t,0,1);
+      const qx=ax+dx*t, qz=az+dz*t;
+      if ((px-qx)**2 + (pz-qz)**2 < RAD*RAD) return true;
+    }
+  }
+  // outer boundary
+  return px<RAD || pz<RAD || px>M.W*CELL-RAD || pz>M.H*CELL-RAD;
+}
+function step(dx,dz){
+  if (!blocked(cam.x+dx, cam.z)) cam.x += dx;
+  if (!blocked(cam.x, cam.z+dz)) cam.z += dz;
+  const [cx,cz] = cellOf(cam.x, cam.z);
+  const i = M.idx(cx,cz);
+  if (!visited[i]){ visited[i]=1; mapDirty = true; }
+  if (!solved && cx===M.exit[0] && cz===M.exit[1]) onSolved();
+}
+
+/* ---------- autopilot: the screensaver's left-hand wall follower ---------- */
+let auto = null;
+function autoUpdate(dt){
+  const sp = opt.speed / 14;                       // cells per second, scaled by walk speed
+  if (auto.turning > 0){
+    auto.turning = Math.max(0, auto.turning - dt*2.4*sp);
+    const t = 1 - auto.turning;
+    cam.yaw = auto.from + shortAngle(auto.from, auto.to) * (t*t*(3-2*t));
+    if (auto.turning === 0) cam.yaw = auto.to;
+    return;
+  }
+  if (auto.moving > 0){
+    auto.moving = Math.max(0, auto.moving - dt*1.15*sp);
+    const t = 1 - auto.moving;
+    cam.x = lerp(auto.fx, auto.tx, t); cam.z = lerp(auto.fz, auto.tz, t);
+    if (auto.moving === 0){
+      const [cx,cz] = cellOf(cam.x,cam.z); const i = M.idx(cx,cz);
+      if (!visited[i]){ visited[i]=1; mapDirty=true; }
+      if (!solved && cx===M.exit[0] && cz===M.exit[1]) onSolved();
+    }
+    return;
+  }
+  // decide the next move
+  const [cx,cz] = cellOf(cam.x,cam.z);
+  const d = auto.dir;
+  const left = (d+3)%4, right = (d+1)%4, back = (d+2)%4;
+  let nd = null;
+  if (!M.wall(cx,cz,left)) nd = left;
+  else if (!M.wall(cx,cz,d)) nd = d;
+  else if (!M.wall(cx,cz,right)) nd = right;
+  else nd = back;
+  if (nd !== d){
+    auto.dir = nd; auto.from = cam.yaw; auto.to = -nd*Math.PI/2; auto.turning = 1;
+  } else {
+    auto.fx = cam.x; auto.fz = cam.z;
+    auto.tx = (cx+DIRS[d][0]+0.5)*CELL; auto.tz = (cz+DIRS[d][1]+0.5)*CELL;
+    auto.moving = 1;
+  }
+}
+function shortAngle(a,b){ let d = (b-a) % TAU; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; return d; }
+
+/* ---------- agent navigation: walk a list of cells, resolve when done ----- */
+let nav = null;
+function walkCells(cells, speedMul){
+  return new Promise(resolve => {
+    if (!cells || cells.length < 2){ resolve({steps:0}); return; }
+    nav = { cells, i:0, t:0, speed:(speedMul||2.2), resolve, steps:0 };
+    mode = "agent"; syncMode();
+  });
+}
+function navUpdate(dt){
+  const a = nav.cells[nav.i], b = nav.cells[nav.i+1];
+  const ax=(a[0]+0.5)*CELL, az=(a[1]+0.5)*CELL, bx=(b[0]+0.5)*CELL, bz=(b[1]+0.5)*CELL;
+  const want = Math.atan2(-(bx-ax), -(bz-az));      // yaw whose forward is (-sin, -cos)
+  cam.yaw += shortAngle(cam.yaw, want) * Math.min(1, dt*10);
+  nav.t += dt * nav.speed * (opt.speed/14);
+  const t = Math.min(1, nav.t);
+  cam.x = lerp(ax,bx,t); cam.z = lerp(az,bz,t);
+  if (t >= 1){
+    nav.t = 0; nav.i++; nav.steps++;
+    const i = M.idx(b[0],b[1]); if (!visited[i]){ visited[i]=1; mapDirty=true; }
+    if (!solved && b[0]===M.exit[0] && b[1]===M.exit[1]) onSolved();
+    if (nav.i >= nav.cells.length-1){
+      cam.yaw = want; const r = nav.resolve, s = nav.steps; nav = null; r({steps:s});
+    }
+  }
+}
+function stopNav(reason){
+  if (nav){ const r = nav.resolve, s = nav.steps; nav = null; r({steps:s, interrupted:reason||"stopped"}); }
+}
+
+function onSolved(){
+  solved = true; elapsedFrozen = performance.now() - startedAt;
+  toast("Exit reached · " + fmtTime(elapsedFrozen) + (opt.regen ? " · new maze coming up" : ""));
+  if (opt.regen) setTimeout(() => { if (solved) newMaze(null); }, 2200);
+}
+
+/* =========================  MINIMAP  ===================================== */
+const mapCanvas = document.getElementById("map");
+const mg = mapCanvas.getContext("2d");
+let mapDirty = true;
+function drawMap(){
+  const S = mapCanvas.width, pad = 4;
+  const cw = (S - pad*2) / M.W, ch = (S - pad*2) / M.H;
+  mg.fillStyle = "#000"; mg.fillRect(0,0,S,S);
+  const known = (x,z) => opt.reveal || visited[M.idx(x,z)];
+  // explored floor
+  mg.fillStyle = "#1d2a1d";
+  for (let z=0; z<M.H; z++) for (let x=0; x<M.W; x++)
+    if (visited[M.idx(x,z)]) mg.fillRect(pad+x*cw, pad+z*ch, cw, ch);
+  // walls
+  mg.strokeStyle = "#43ff8f"; mg.lineWidth = Math.max(1, cw*0.14); mg.lineCap = "square";
+  mg.beginPath();
+  for (let z=0; z<=M.H; z++) for (let x=0; x<M.W; x++){
+    if (!M.hw[z*M.W+x]) continue;
+    if (!(known(x, Math.min(z,M.H-1)) || known(x, Math.max(0,z-1)))) continue;
+    mg.moveTo(pad+x*cw, pad+z*ch); mg.lineTo(pad+(x+1)*cw, pad+z*ch);
+  }
+  for (let z=0; z<M.H; z++) for (let x=0; x<=M.W; x++){
+    if (!M.vw[z*(M.W+1)+x]) continue;
+    if (!(known(Math.min(x,M.W-1), z) || known(Math.max(0,x-1), z))) continue;
+    mg.moveTo(pad+x*cw, pad+z*ch); mg.lineTo(pad+x*cw, pad+(z+1)*ch);
+  }
+  mg.stroke();
+  // exit
+  if (opt.exitOn && (opt.reveal || visited[M.idx(M.exit[0],M.exit[1])])){
+    mg.fillStyle = "#2bff9a";
+    mg.fillRect(pad+M.exit[0]*cw+cw*0.28, pad+M.exit[1]*ch+ch*0.28, cw*0.44, ch*0.44);
+  }
+  // player
+  const px = pad + (cam.x/CELL)*cw, pz = pad + (cam.z/CELL)*ch;
+  const a = cam.yaw, fx = -Math.sin(a), fz = -Math.cos(a), r = Math.max(3, cw*0.42);
+  mg.fillStyle = mode==="agent" ? "#00e0ff" : "#ffb24a";
+  mg.beginPath();
+  mg.moveTo(px+fx*r, pz+fz*r);
+  mg.lineTo(px-fx*r*0.6 - fz*r*0.6, pz-fz*r*0.6 + fx*r*0.6);
+  mg.lineTo(px-fx*r*0.6 + fz*r*0.6, pz-fz*r*0.6 - fx*r*0.6);
+  mg.closePath(); mg.fill();
+}
+
+/* =========================  RENDER LOOP  ================================= */
+let W2 = 0, H2 = 0, dpr = 1;
+function resize(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2) * (opt.res/100);
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  W2 = Math.max(1, Math.floor(w*dpr)); H2 = Math.max(1, Math.floor(h*dpr));
+  if (canvas.width !== W2 || canvas.height !== H2){ canvas.width = W2; canvas.height = H2; }
+}
+window.addEventListener("resize", resize);
+
+function hexToRGB(h){ return [parseInt(h.slice(1,3),16)/255, parseInt(h.slice(3,5),16)/255, parseInt(h.slice(5,7),16)/255]; }
+
+let last = performance.now(), fpsAcc = 0, fpsN = 0, mapAcc = 0;
+function frame(now){
+  const dt = Math.min(0.05, (now - last)/1000); last = now;
+  resize();
+
+  // --- update -------------------------------------------------------------
+  if (nav) navUpdate(dt);
+  else if (mode === "auto") autoUpdate(dt);
+  else humanUpdate(dt);
+
+  if (mode !== "auto" && !nav && opt.idle > 0 && (now - lastInput)/1000 > opt.idle){
+    setMode("auto"); toast("Screensaver resumed");
+  }
+
+  const moving = (mode==="auto" && auto.moving>0) || nav || (mode==="human" && movingNow);
+  if (opt.bob && moving) cam.bob += dt * 7 * (opt.speed/14);
+  const bobY = (opt.bob && moving) ? Math.sin(cam.bob)*0.16 : 0;
+
+  // --- draw ---------------------------------------------------------------
+  const fog = hexToRGB(theme.fog);
+  gl.viewport(0,0,W2,H2);
+  gl.clearColor(fog[0],fog[1],fog[2],1);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.useProgram(prog);
+  gl.uniformMatrix4fv(U.proj,false, perspective(opt.fov, W2/H2, 0.6, 800));
+  gl.uniformMatrix4fv(U.view,false, viewMatrix(cam.x, cam.y+bobY, cam.z, cam.yaw, cam.pitch));
+  gl.uniform3fv(U.fog, fog);
+  gl.uniform1f(U.near, opt.fog*0.16);
+  gl.uniform1f(U.far, opt.fog);
+  gl.uniform1i(U.tex, 0); gl.activeTexture(gl.TEXTURE0);
+
+  gl.depthMask(true);
+  scene.floor.draw(); scene.ceil.draw(); scene.walls.draw();
+  if (opt.decor) scene.decor.draw();
+  if (opt.drift) drawDrifters(dt);
+
+  if (opt.exitOn){                                   // additive glow, drawn last
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE); gl.depthMask(false);
+    portal.draw(0.34 + Math.sin(now/320)*0.12);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(true);
+  }
+
+  // --- HUD ----------------------------------------------------------------
+  mapAcc += dt;
+  if (opt.mini && (mapAcc > 0.07 || mapDirty)){ mapAcc = 0; mapDirty = false; drawMap(); }
+  fpsAcc += dt; fpsN++;
+  if (fpsAcc > 0.5){
+    document.getElementById("t-fps").textContent = Math.round(fpsN/fpsAcc) + " FPS";
+    fpsAcc = 0; fpsN = 0; updateReadout();
+  }
+  requestAnimationFrame(frame);
+}
+
+function drawDrifters(dt){
+  driftMesh.v.length = 0;
+  for (const d of drifters){
+    // wander cell to cell, never through a wall
+    d.t += dt * 0.45;
+    if (d.t >= 1){
+      d.t = 0;
+      const [cx,cz] = cellOf(d.x,d.z);
+      const opts = [0,1,2,3].filter(k => !M.wall(cx,cz,k));
+      const pref = opts.filter(k => k !== (d.dir+2)%4);
+      d.dir = (pref.length ? pref : opts)[Math.floor(Math.random()*(pref.length?pref.length:opts.length))] ?? d.dir;
+      d.hx = d.x; d.hz = d.z;
+      d.gx = (cx+DIRS[d.dir][0]+0.5)*CELL; d.gz = (cz+DIRS[d.dir][1]+0.5)*CELL;
+    }
+    if (d.gx === undefined){ d.hx=d.x; d.hz=d.z; d.gx=d.x; d.gz=d.z; }
+    d.x = lerp(d.hx, d.gx, d.t); d.z = lerp(d.hz, d.gz, d.t);
+    d.spin += dt*1.1;
+    const s = 1.5, cs = Math.cos(d.spin), sn = Math.sin(d.spin);
+    const yy = opt.wallHeight*0.5 + Math.sin(d.spin*0.7)*0.8;
+    const V = SHAPES[d.shape];
+    for (let i=0;i<V.length;i+=3){
+      const p = [];
+      for (let k=0;k<3;k++){
+        const v = V[i+k];
+        p.push([d.x + (v[0]*cs - v[2]*sn)*s, yy + v[1]*s, d.z + (v[0]*sn + v[2]*cs)*s]);
+      }
+      const shade = 0.55 + 0.45*Math.abs(((i/3)%4)/4 - 0.5)*2;
+      driftMesh.tri(p[0],p[1],p[2], [d.col[0]*shade, d.col[1]*shade, d.col[2]*shade]);
+    }
+  }
+  driftMesh.upload(true);
+  gl.disable(gl.CULL_FACE); driftMesh.draw(); gl.enable(gl.CULL_FACE);
+}
+
+/* =========================  HUMAN CONTROL  =============================== */
+let movingNow = false;
+let touchVec = {x:0, y:0};
+function humanUpdate(dt){
+  const sp = opt.speed * (keys.has("shift") ? 1.75 : 1) * dt;
+  let f = 0, s = 0;
+  if (keys.has("w") || keys.has("arrowup")) f += 1;
+  if (keys.has("s") || keys.has("arrowdown")) f -= 1;
+  if (keys.has("a")) s -= 1;
+  if (keys.has("d")) s += 1;
+  if (keys.has("q")) s -= 1;
+  if (keys.has("e")) s += 1;
+  f += touchVec.y; s += touchVec.x;
+  let turn = 0;
+  if (keys.has("arrowleft")) turn -= 1;
+  if (keys.has("arrowright")) turn += 1;
+  if (turn) cam.yaw -= turn * dt * 2.2;
+  const mag = Math.hypot(f,s);
+  movingNow = mag > 0.02;
+  if (movingNow){
+    const n = Math.min(1, mag);
+    const fx = -Math.sin(cam.yaw), fz = -Math.cos(cam.yaw);
+    const rx =  Math.cos(cam.yaw), rz = -Math.sin(cam.yaw);
+    step((fx*f + rx*s)/mag*n*sp, (fz*f + rz*s)/mag*n*sp);
+    lastInput = performance.now();
+  }
+}
+function setMode(m){
+  if (m !== "auto") lastInput = performance.now();
+  if (m === "auto" && mode !== "auto"){
+    const [cx,cz] = cellOf(cam.x,cam.z);          // re-centre so the follower stays on the grid
+    auto = { turning:0, from:cam.yaw, to:cam.yaw, moving:0,
+             fx:cam.x, fz:cam.z, tx:(cx+0.5)*CELL, tz:(cz+0.5)*CELL, dir:facing() };
+    cam.x = (cx+0.5)*CELL; cam.z = (cz+0.5)*CELL; cam.yaw = -facing()*Math.PI/2; cam.pitch = 0;
+  }
+  mode = m; syncMode();
+}
+function syncMode(){
+  document.getElementById("r-mode").textContent = mode === "auto" ? "screensaver" : mode;
+  document.getElementById("b-auto").setAttribute("aria-pressed", String(mode === "auto"));
+  document.body.classList.toggle("playing", mode === "human");
+  document.getElementById("hint").hidden = mode !== "auto";
+}
+
+/* =========================  INPUT  ======================================= */
+addEventListener("keydown", e => {
+  const k = e.key.toLowerCase();
+  if (k === "escape"){ setMode("auto"); return; }
+  if (["w","a","s","d","q","e","arrowup","arrowdown","arrowleft","arrowright","shift"].includes(k)){
+    if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+    e.preventDefault();
+    keys.add(k); lastInput = performance.now();
+    if (mode !== "human"){ stopNav("player took over"); setMode("human"); }
+  }
+  if (k === "n" && !e.metaKey && !e.ctrlKey && e.target.tagName !== "INPUT"){ newMaze(null); toast("New maze"); }
+});
+addEventListener("keyup", e => keys.delete(e.key.toLowerCase()));
+addEventListener("blur", () => keys.clear());
+
+canvas.addEventListener("mousedown", () => {
+  stopNav("player took over"); setMode("human");
+  if (canvas.requestPointerLock) canvas.requestPointerLock();
+});
+document.addEventListener("pointerlockchange", () => {
+  document.body.classList.toggle("playing", document.pointerLockElement === canvas);
+});
+addEventListener("mousemove", e => {
+  if (document.pointerLockElement !== canvas) return;
+  const s = opt.sens/1000;
+  cam.yaw -= e.movementX * s;
+  cam.pitch = clamp(cam.pitch - e.movementY * s, -1.1, 1.1);
+  lastInput = performance.now();
+});
+
+/* touch: left stick walks, anywhere else looks */
+const stick = document.getElementById("stick"), nub = document.getElementById("nub");
+let stickId = null, lookId = null, lookLast = null;
+if (matchMedia("(pointer:coarse)").matches) document.body.classList.add("touch");
+stick.addEventListener("pointerdown", e => { stickId = e.pointerId; stick.setPointerCapture(e.pointerId);
+  stopNav("player took over"); setMode("human"); moveStick(e); });
+stick.addEventListener("pointermove", e => { if (e.pointerId === stickId) moveStick(e); });
+const endStick = e => { if (e.pointerId === stickId){ stickId = null; touchVec = {x:0,y:0}; nub.style.transform = ""; } };
+stick.addEventListener("pointerup", endStick); stick.addEventListener("pointercancel", endStick);
+function moveStick(e){
+  const r = stick.getBoundingClientRect();
+  let dx = (e.clientX - (r.left+r.width/2)) / (r.width/2);
+  let dy = (e.clientY - (r.top+r.height/2)) / (r.height/2);
+  const m = Math.hypot(dx,dy); if (m > 1){ dx/=m; dy/=m; }
+  touchVec = { x:dx, y:-dy };
+  nub.style.transform = `translate(${dx*34}px, ${dy*34}px)`;
+  lastInput = performance.now();
+}
+canvas.addEventListener("pointerdown", e => { if (e.pointerType !== "touch") return;
+  lookId = e.pointerId; lookLast = {x:e.clientX, y:e.clientY}; stopNav("player took over"); setMode("human"); });
+canvas.addEventListener("pointermove", e => {
+  if (e.pointerId !== lookId || !lookLast) return;
+  cam.yaw -= (e.clientX - lookLast.x) * opt.sens/900;
+  cam.pitch = clamp(cam.pitch - (e.clientY - lookLast.y) * opt.sens/900, -1.1, 1.1);
+  lookLast = {x:e.clientX, y:e.clientY}; lastInput = performance.now();
+});
+canvas.addEventListener("pointerup", e => { if (e.pointerId === lookId){ lookId = null; lookLast = null; } });
+
+/* =========================  UI  ========================================== */
+const $ = id => document.getElementById(id);
+function toast(msg, ms){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), ms || 2600);
+}
+const fmtTime = ms => { const s = Math.floor(ms/1000); return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); };
+function updateReadout(){
+  const [cx,cz] = cellOf(cam.x,cam.z);
+  $("r-cell").textContent = cx + "," + cz;
+  $("r-face").textContent = compass().slice(0,1).toUpperCase() + compass().slice(1);
+  $("r-time").textContent = fmtTime(solved ? elapsedFrozen : performance.now()-startedAt);
+  const d = new Date();
+  $("t-clock").textContent = String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+}
+
+/* draggable windows, because it would be a shame not to */
+for (const win of document.querySelectorAll(".win")){
+  const bar = win.querySelector(".title");
+  if (!bar || bar.hasAttribute("data-static")) continue;
+  bar.addEventListener("pointerdown", e => {
+    if (e.target.closest(".tbtn")) return;
+    const r = win.getBoundingClientRect();
+    win.style.left = r.left+"px"; win.style.top = r.top+"px"; win.style.right = "auto"; win.style.bottom = "auto";
+    const ox = e.clientX - r.left, oy = e.clientY - r.top;
+    bar.setPointerCapture(e.pointerId);
+    const move = ev => {
+      win.style.left = clamp(ev.clientX-ox, -40, innerWidth-60) + "px";
+      win.style.top  = clamp(ev.clientY-oy, 0, innerHeight-70) + "px";
+    };
+    const up = () => { bar.removeEventListener("pointermove", move); bar.removeEventListener("pointerup", up); };
+    bar.addEventListener("pointermove", move); bar.addEventListener("pointerup", up);
+  });
+}
+document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => {
+  const id = b.getAttribute("data-close");
+  $(id).hidden = true;
+  const btn = id === "settings" ? $("b-settings") : $("b-agent");
+  btn.setAttribute("aria-pressed","false");
+}));
+const togglePanel = (id, btn) => {
+  const el = $(id), show = el.hidden;
+  el.hidden = !show; btn.setAttribute("aria-pressed", String(show));
+};
+$("b-settings").addEventListener("click", () => togglePanel("settings", $("b-settings")));
+$("b-agent").addEventListener("click", () => togglePanel("agentwin", $("b-agent")));
+$("b-full").addEventListener("click", () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen?.().catch(() => toast("Full screen was refused by the browser"));
+});
+$("b-regen").addEventListener("click", () => { newMaze(null); toast("New maze · seed " + M.seed); });
+$("b-regen2").addEventListener("click", () => { newMaze(null); toast("New maze · seed " + M.seed); });
+$("b-replay").addEventListener("click", () => { newMaze(M.seed); toast("Back to the start of " + M.seed); });
+$("b-auto").addEventListener("click", () => { stopNav("mode changed"); setMode(mode === "auto" ? "human" : "auto"); });
+$("b-reset").addEventListener("click", () => { opt = Object.assign({}, DEFAULTS); saveOpts(); syncControls(); applyAll(); toast("Defaults restored"); });
+
+/* settings <-> options */
+const CONTROLS = [
+  ["s-size","size","int","v-size"], ["s-braid","braid","int","v-braid"],
+  ["s-fog","fog","int","v-fog"], ["s-fov","fov","int","v-fov"],
+  ["s-wall","wallHeight","int","v-wall"], ["s-res","res","int","v-res"],
+  ["s-speed","speed","int","v-speed"], ["s-sens","sens","int","v-sens"],
+  ["s-idle","idle","int","v-idle"],
+  ["s-theme","theme","str"], ["s-decor","decor","bool"], ["s-exit","exitOn","bool"],
+  ["s-drift","drift","bool"], ["s-regen","regen","bool"], ["s-scan","scan","bool"],
+  ["s-bob","bob","bool"], ["s-reveal","reveal","bool"], ["s-mini","mini","bool"]
+];
+const REBUILD = new Set(["size","braid","theme","decor","wallHeight"]);
+function syncControls(){
+  for (const [id,key,kind,vid] of CONTROLS){
+    const el = $(id); if (!el) continue;
+    if (kind === "bool") el.checked = !!opt[key]; else el.value = opt[key];
+    if (vid) $(vid).textContent = opt[key];
+  }
+}
+function applyAll(){
+  document.body.classList.toggle("noscan", !opt.scan);
+  $("hud").hidden = !opt.mini;
+  resize(); mapDirty = true;
+}
+for (const [id,key,kind,vid] of CONTROLS){
+  const el = $(id); if (!el) continue;
+  el.addEventListener("input", () => {
+    opt[key] = kind === "bool" ? el.checked : kind === "int" ? parseInt(el.value,10) : el.value;
+    if (vid) $(vid).textContent = opt[key];
+    saveOpts();
+    if (REBUILD.has(key)) newMaze(M ? M.seed : null);
+    applyAll();
+  });
+}
+$("s-seed").addEventListener("change", e => {
+  const v = e.target.value.trim().toUpperCase();
+  if (v){ newMaze(v); toast("Loaded seed " + v); }
+});
+
+/* =========================  WEBMCP  ====================================== */
+/* Tools a browser agent can call. Each one returns MCP-shaped content plus a
+   structured payload, and every call is echoed into the on-screen log.      */
+function state(extra){
+  const [cx,cz] = cellOf(cam.x,cam.z), f = facing();
+  const openings = {};
+  for (let d=0; d<4; d++) openings[DIRNAME[d]] = !M.wall(cx,cz,d);
+  const rel = {
+    forward: !M.wall(cx,cz,f), back: !M.wall(cx,cz,(f+2)%4),
+    left: !M.wall(cx,cz,(f+3)%4), right: !M.wall(cx,cz,(f+1)%4)
+  };
+  const path = findPath(M,[cx,cz],M.exit);
+  return Object.assign({
+    seed:M.seed, size:{width:M.W, height:M.H},
+    cell:{x:cx, z:cz}, facing:DIRNAME[f],
+    start:{x:M.start[0], z:M.start[1]}, exit:{x:M.exit[0], z:M.exit[1]},
+    openings, canMove:rel,
+    stepsToExit: path ? path.length-1 : null,
+    solved, driver:mode, elapsedSeconds:+(((solved?elapsedFrozen:performance.now()-startedAt)/1000).toFixed(1)),
+    visitedCells: visited.reduce((a,b)=>a+b, 0)
+  }, extra || {});
+}
+/* an ASCII plan of the maze — an agent can read this far faster than pixels */
+function asciiMap(revealAll){
+  const rows = [];
+  const known = (x,z) => revealAll || visited[M.idx(x,z)];
+  const [px,pz] = cellOf(cam.x,cam.z);
+  for (let z=0; z<M.H; z++){
+    let top = "", mid = "";
+    for (let x=0; x<M.W; x++){
+      const k = known(x,z);
+      top += "+" + (!k ? "?" : M.wall(x,z,0) ? "---" : "   ");
+      mid += (!k ? "?" : M.wall(x,z,3) ? "|" : " ");
+      let c = "   ";
+      if (!k) c = "???";
+      else if (x===px && z===pz) c = " @ ";
+      else if (x===M.exit[0] && z===M.exit[1]) c = " X ";
+      else if (x===M.start[0] && z===M.start[1]) c = " S ";
+      mid += c;
+    }
+    rows.push(top + "+", mid + (known(M.W-1,z) ? "|" : "?"));
+  }
+  let bottom = "";
+  for (let x=0; x<M.W; x++) bottom += "+" + (known(x,M.H-1) ? "---" : "?");
+  rows.push(bottom + "+");
+  return rows.join("\n");
+}
+function describeView(){
+  const [cx,cz] = cellOf(cam.x,cam.z), f = facing();
+  let x = cx, z = cz, len = 0, side = [];
+  while (!M.wall(x,z,f) && len < 40){
+    x += DIRS[f][0]; z += DIRS[f][1]; len++;
+    const l = !M.wall(x,z,(f+3)%4), r = !M.wall(x,z,(f+1)%4);
+    if (l || r) side.push({ cellsAhead:len, left:l, right:r });
+  }
+  return { corridorCells:len, wallAhead:len===0,
+    openingsAlongCorridor:side.slice(0,6),
+    exitVisible: (() => { let ex=cx, ez=cz;
+      for (let i=0;i<len;i++){ ex+=DIRS[f][0]; ez+=DIRS[f][1];
+        if (ex===M.exit[0] && ez===M.exit[1]) return {cellsAhead:i+1}; }
+      return false; })() };
+}
+
+const TOOLS = [
+  { name:"maze_get_state",
+    description:"Read the current maze: seed, grid size, the player's cell and heading, which of the four sides of that cell are open, the exit cell, and how many steps remain to the exit.",
+    inputSchema:{ type:"object", properties:{}, additionalProperties:false },
+    run: () => state() },
+
+  { name:"maze_look",
+    description:"Describe what is visible straight ahead: how far the corridor runs, side openings along it, and whether the exit is in view. Use this to navigate without screenshots.",
+    inputSchema:{ type:"object", properties:{}, additionalProperties:false },
+    run: () => Object.assign(describeView(), {facing:compass()}) },
+
+  { name:"maze_get_map",
+    description:"Return an ASCII floor plan of the maze. '@' is the player, 'S' the start, 'X' the exit, '?' an unexplored cell. Set reveal to true for the whole plan even where the player has not walked.",
+    inputSchema:{ type:"object", properties:{ reveal:{type:"boolean", description:"Show unexplored cells too (default false)"} }, additionalProperties:false },
+    run: a => ({ map: asciiMap(!!(a && a.reveal) || opt.reveal), legend:"@ player · S start · X exit · ? unexplored",
+                 width:M.W, height:M.H, seed:M.seed }) },
+
+  { name:"maze_move",
+    description:"Walk whole cells relative to the current heading. Stops early at a wall and reports how far it got.",
+    inputSchema:{ type:"object", properties:{
+        direction:{type:"string", enum:["forward","back","left","right"], description:"Direction relative to the current heading"},
+        cells:{type:"integer", minimum:1, maximum:64, description:"How many cells to walk (default 1)"}
+      }, required:["direction"], additionalProperties:false },
+    run: async a => {
+      const f = facing();
+      const d = a.direction==="forward" ? f : a.direction==="back" ? (f+2)%4
+              : a.direction==="left" ? (f+3)%4 : (f+1)%4;
+      let [x,z] = cellOf(cam.x,cam.z);
+      const cells = [[x,z]];
+      const want = Math.max(1, Math.min(64, a.cells || 1));
+      let moved = 0, stoppedBy = null;
+      for (let i=0;i<want;i++){
+        if (M.wall(x,z,d)){ stoppedBy = "wall"; break; }
+        x += DIRS[d][0]; z += DIRS[d][1]; cells.push([x,z]); moved++;
+      }
+      if (moved) await walkCells(cells);
+      return state({ requested:want, moved, stoppedBy, movedDirection:DIRNAME[d] });
+    } },
+
+  { name:"maze_turn",
+    description:"Turn the camera. Either a relative turn (left, right, around) or an absolute compass heading.",
+    inputSchema:{ type:"object", properties:{
+        turn:{type:"string", enum:["left","right","around"], description:"Relative quarter turn"},
+        heading:{type:"string", enum:["north","east","south","west"], description:"Absolute heading instead of a relative turn"}
+      }, additionalProperties:false },
+    run: async a => {
+      const f = facing();
+      let d = f;
+      if (a && a.heading) d = DIRNAME.indexOf(a.heading);
+      else if (a && a.turn === "left") d = (f+3)%4;
+      else if (a && a.turn === "right") d = (f+1)%4;
+      else if (a && a.turn === "around") d = (f+2)%4;
+      else throw new Error("Pass either turn (left/right/around) or heading (north/east/south/west).");
+      stopNav("turning"); mode = "agent"; syncMode();
+      const target = -d*Math.PI/2;
+      await animate(400, t => { cam.yaw = cam.yaw + shortAngle(cam.yaw, target)*t; });
+      cam.yaw = target;
+      return state({ turnedTo:DIRNAME[d] });
+    } },
+
+  { name:"maze_goto",
+    description:"Walk the shortest route to a given cell, turning corners on the way. Coordinates are zero-based, x across and z down, matching maze_get_map.",
+    inputSchema:{ type:"object", properties:{
+        x:{type:"integer", minimum:0, description:"Target column"},
+        z:{type:"integer", minimum:0, description:"Target row"}
+      }, required:["x","z"], additionalProperties:false },
+    run: async a => {
+      const x = clamp(a.x|0, 0, M.W-1), z = clamp(a.z|0, 0, M.H-1);
+      const path = findPath(M, cellOf(cam.x,cam.z), [x,z]);
+      if (!path) throw new Error(`No route to ${x},${z} — that cell is walled off.`);
+      stopNav("new route");
+      const r = await walkCells(path);
+      return state({ routeLength:path.length-1, stepsWalked:r.steps, arrived:!r.interrupted });
+    } },
+
+  { name:"maze_solve",
+    description:"Walk the shortest route from where the player is standing to the exit portal.",
+    inputSchema:{ type:"object", properties:{}, additionalProperties:false },
+    run: async () => {
+      const path = findPath(M, cellOf(cam.x,cam.z), M.exit);
+      if (!path) throw new Error("No route to the exit from here.");
+      stopNav("solving");
+      const r = await walkCells(path, 3.0);
+      return state({ routeLength:path.length-1, stepsWalked:r.steps, reachedExit:solved });
+    } },
+
+  { name:"maze_new_maze",
+    description:"Generate a fresh maze. Optionally set the grid size or pass a seed to reproduce a specific maze.",
+    inputSchema:{ type:"object", properties:{
+        size:{type:"integer", minimum:6, maximum:32, description:"Cells per side"},
+        seed:{type:"string", description:"Reuse a seed to get the same maze back"}
+      }, additionalProperties:false },
+    run: a => {
+      stopNav("new maze");
+      if (a && a.size){ opt.size = clamp(a.size|0,6,32); saveOpts(); syncControls(); }
+      newMaze(a && a.seed ? String(a.seed).toUpperCase() : null);
+      return state({ generated:true });
+    } },
+
+  { name:"maze_set_options",
+    description:"Change how the maze looks and plays: wall style, torch range, field of view, wall height, walk speed, loop density, and the on-screen extras.",
+    inputSchema:{ type:"object", properties:{
+        theme:{type:"string", enum:["brick","stone","tile","circuit","hedge"], description:"Wall style"},
+        fog:{type:"integer", minimum:15, maximum:140, description:"Torch range in world units"},
+        fov:{type:"integer", minimum:55, maximum:105, description:"Field of view in degrees"},
+        wallHeight:{type:"integer", minimum:6, maximum:20, description:"Wall height in world units"},
+        speed:{type:"integer", minimum:4, maximum:40, description:"Walk speed"},
+        braid:{type:"integer", minimum:0, maximum:100, description:"Percentage of dead ends opened into loops"},
+        decor:{type:"boolean", description:"Wall plaques"},
+        drift:{type:"boolean", description:"Drifting polyhedra"},
+        exitPortal:{type:"boolean", description:"Show the exit portal"},
+        scanlines:{type:"boolean", description:"CRT scanline overlay"},
+        revealMap:{type:"boolean", description:"Reveal the whole map instead of only explored cells"},
+        showMap:{type:"boolean", description:"Show the map panel"}
+      }, additionalProperties:false },
+    run: a => {
+      const map = { theme:"theme", fog:"fog", fov:"fov", wallHeight:"wallHeight", speed:"speed", braid:"braid",
+                    decor:"decor", drift:"drift", exitPortal:"exitOn", scanlines:"scan", revealMap:"reveal", showMap:"mini" };
+      const changed = [];
+      let rebuild = false;
+      for (const k in map) if (a && a[k] !== undefined){
+        opt[map[k]] = a[k]; changed.push(k);
+        if (REBUILD.has(map[k])) rebuild = true;
+      }
+      if (!changed.length) throw new Error("No recognised options were given.");
+      saveOpts(); syncControls(); applyAll();
+      if (rebuild) newMaze(M.seed);
+      return { changed, options:opt };
+    } },
+
+  { name:"maze_set_driver",
+    description:"Choose who is walking: 'screensaver' for the automatic wall-following demo, 'agent' to hold position for tool-driven moves, 'player' to hand control back to the keyboard.",
+    inputSchema:{ type:"object", properties:{
+        driver:{type:"string", enum:["screensaver","agent","player"], description:"Who drives the camera"}
+      }, required:["driver"], additionalProperties:false },
+    run: a => {
+      stopNav("driver changed");
+      setMode(a.driver === "screensaver" ? "auto" : a.driver === "player" ? "human" : "agent");
+      return state();
+    } }
+];
+
+function animate(ms, fn){
+  return new Promise(res => {
+    const t0 = performance.now(), prev = cam.yaw;
+    const tick = () => {
+      const t = Math.min(1, (performance.now()-t0)/ms);
+      cam.yaw = prev; fn(t*t*(3-2*t));
+      if (t < 1) requestAnimationFrame(tick); else res();
+    };
+    tick();
+  });
+}
+
+/* ---- log + registration ---- */
+const logEl = $("log"), lamp = $("lamp");
+function logLine(text, cls){
+  const p = document.createElement("p");
+  const d = new Date();
+  p.innerHTML = '<span class="t">' + String(d.getHours()).padStart(2,"0") + ":" +
+    String(d.getMinutes()).padStart(2,"0") + ":" + String(d.getSeconds()).padStart(2,"0") + '</span> ';
+  const s = document.createElement("span");
+  if (cls) s.className = cls;
+  s.textContent = text; p.appendChild(s);
+  logEl.appendChild(p); logEl.scrollTop = logEl.scrollHeight;
+  while (logEl.children.length > 60) logEl.removeChild(logEl.firstChild);
+  lamp.classList.add("on"); clearTimeout(logLine._t);
+  logLine._t = setTimeout(() => lamp.classList.remove("on"), 900);
+}
+const short = v => { const s = JSON.stringify(v); return s && s.length > 90 ? s.slice(0,90)+"…" : s; };
+
+function wrap(tool){
+  return async (args) => {
+    const a = args || {};
+    logLine(tool.name + "(" + (Object.keys(a).length ? short(a) : "") + ")");
+    try {
+      const out = await tool.run(a);
+      logLine("→ " + short(out));
+      return { content:[{ type:"text", text: JSON.stringify(out, null, 2) }], structuredContent: out };
+    } catch (err){
+      const msg = (err && err.message) ? err.message : String(err);
+      logLine("→ error: " + msg, "err");
+      return { content:[{ type:"text", text:"Error: " + msg }], isError:true };
+    }
+  };
+}
+
+const registered = TOOLS.map(t => ({
+  name:t.name, description:t.description, inputSchema:t.inputSchema, execute: wrap(t)
+}));
+
+function registerTools(){
+  const mc = navigator.modelContext;
+  const badge = $("mcp-state");
+  if (mc && typeof mc.registerTool === "function"){
+    let n = 0;
+    for (const t of registered){ try { mc.registerTool(t); n++; } catch(e){ logLine("register " + t.name + " failed: " + e.message, "err"); } }
+    badge.textContent = "navigator.modelContext: " + n + " tools live";
+    badge.classList.remove("off");
+    logLine("Registered " + n + " tools with navigator.modelContext.registerTool");
+  } else if (mc && typeof mc.provideContext === "function"){
+    mc.provideContext({ tools: registered });
+    badge.textContent = "navigator.modelContext: " + registered.length + " tools live";
+    badge.classList.remove("off");
+    logLine("Registered " + registered.length + " tools via provideContext");
+  } else {
+    badge.textContent = "navigator.modelContext: not in this browser";
+    badge.classList.add("off");
+    logLine("No WebMCP in this browser — window.maze95.call(name, args) still works.");
+  }
+}
+
+/* Fallback surface for agents without WebMCP: drive the page from the console,
+   from an extension, or across frames with postMessage. */
+const api = {
+  version:"1.0",
+  tools: registered.map(t => ({name:t.name, description:t.description, inputSchema:t.inputSchema})),
+  call: (name, args) => {
+    const t = registered.find(x => x.name === name);
+    if (!t) return Promise.resolve({ content:[{type:"text", text:"Error: no tool named " + name}], isError:true });
+    return t.execute(args || {});
+  },
+  getState: () => state()
+};
+window.maze95 = api;
+addEventListener("message", async ev => {
+  const d = ev.data;
+  if (!d || d.type !== "maze95:call" || !d.tool) return;
+  const res = await api.call(d.tool, d.args);
+  (ev.source || window).postMessage({ type:"maze95:result", id:d.id, tool:d.tool, result:res }, "*");
+});
+
+/* tool list in the agent window */
+$("tools").innerHTML = "";
+for (const t of TOOLS){
+  const el = document.createElement("div");
+  el.className = "tool";
+  const props = t.inputSchema.properties || {};
+  const sig = Object.keys(props).map(k => k + (t.inputSchema.required?.includes(k) ? "" : "?")).join(", ");
+  const code = document.createElement("code"); code.textContent = t.name + "(" + sig + ")";
+  const desc = document.createElement("span"); desc.textContent = t.description;
+  el.append(code, desc); $("tools").appendChild(el);
+}
+$("b-copytools").addEventListener("click", async () => {
+  const json = JSON.stringify(api.tools, null, 2);
+  try { await navigator.clipboard.writeText(json); toast("Tool definitions copied"); }
+  catch(e){ toast("Clipboard blocked — window.maze95.tools has the same JSON"); }
+});
+
+/* =========================  BOOT  ======================================== */
+syncControls();
+newMaze(new URLSearchParams(location.search).get("seed"));   // a fresh maze on every load
+applyAll();
+setMode("auto");
+registerTools();
+updateReadout();
+setInterval(updateReadout, 1000);
+requestAnimationFrame(frame);
+logLine("Maze 95 ready · seed " + M.seed + " · " + M.W + "x" + M.H + " · " + M.longest + " steps start to exit");
+})();
+</script>
+
+<!-- ARTIFACT:END -->
+</body>
+</html>
